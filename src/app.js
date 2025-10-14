@@ -14,10 +14,14 @@ import express from "express";
 import userRoutes from "./routes/user.routes.js";
 
 const app = express();
+
+// Middleware to log request details
 app.use((req, res, next) => {
     console.log(`Data received  at: ${new Date().toISOString()} | Method: ${req.method} | URL: ${req.url}`);
     next();
-})
+});
+
+// Middleware to parse JSON bodies
 app.use(express.json());
 app.use("/users", userRoutes);
 
