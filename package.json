@@ -1,0 +1,35 @@
+{
+  "name": "clothing-store-backend",
+  "version": "1.0.0",
+  "description": "Backend for Clothing Store Ecommerce using Node.js, Express, and MongoDB. ",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anthonybanion/Clothing-Store-Backend.git"
+  },
+  "author": "Anthony Bañon Arias",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/anthonybanion/Clothing-Store-Backend/issues"
+  },
+  "homepage": "https://github.com/anthonybanion/Clothing-Store-Backend#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.1"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4"
+  }
+}
