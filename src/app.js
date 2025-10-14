@@ -1,0 +1,24 @@
+// ==========================================
+// 
+// Description: Express application setup
+//
+// File: app.js
+// Author: Anthony Bañon
+// Created: 2025-10-13
+// Last Updated: 2025-10-13
+// ==========================================
+
+
+
+import express from "express";
+import userRoutes from "./routes/user.routes.js";
+
+const app = express();
+app.use((req, res, next) => {
+    console.log(`Data received  at: ${new Date().toISOString()} | Method: ${req.method} | URL: ${req.url}`);
+    next();
+})
+app.use(express.json());
+app.use("/users", userRoutes);
+
+export default app;
