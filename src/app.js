@@ -1,5 +1,5 @@
 // ==========================================
-// 
+//
 // Description: Express application setup
 //
 // File: app.js
@@ -8,21 +8,27 @@
 // Last Updated: 2025-10-13
 // ==========================================
 
-
-
-import express from "express";
-import userRoutes from "./routes/user.routes.js";
+import express from 'express';
+import userRoutes from './routes/user.routes.js';
+import productRoutes from './routes/product.routers.js';
 
 const app = express();
 
 // Middleware to log request details
 app.use((req, res, next) => {
-    console.log(`Data received  at: ${new Date().toISOString()} | Method: ${req.method} | URL: ${req.url}`);
-    next();
+  console.log(
+    `Data received  at: ${new Date().toISOString()} | Method: ${
+      req.method
+    } | URL: ${req.url}`
+  );
+  next();
 });
 
 // Middleware to parse JSON bodies
 app.use(express.json());
-app.use("/users", userRoutes);
+
+// Routes
+app.use('/users', userRoutes);
+app.use('/products', productRoutes);
 
 export default app;

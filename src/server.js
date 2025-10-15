@@ -1,5 +1,5 @@
 // ==========================================
-// 
+//
 // Description: Entry point for the Express server
 //
 // File: server.js
@@ -8,8 +8,7 @@
 // Last Updated: 2025-10-13
 // ==========================================
 
-
-import app from "./app.js";
+import app from './app.js';
 
 // Define the port
 const PORT = process.env.PORT || 3000;
