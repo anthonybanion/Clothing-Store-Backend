@@ -9,8 +9,8 @@
 // ==========================================
 
 import express from 'express';
-import userRoutes from './routes/user.routes.js';
-import productRoutes from './routes/product.routers.js';
+import userRoutes from './routes/users.route.js';
+import productRoutes from './routes/products.router.js';
 
 const app = express();
 

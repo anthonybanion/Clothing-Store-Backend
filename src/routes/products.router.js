@@ -16,7 +16,7 @@ import {
   updateOneProduct,
   updatePartialOneProduct,
   deleteOneProduct,
-} from '../controllers/product.controlers.js';
+} from '../controllers/products.controler.js';
 
 const router = Router();
 
