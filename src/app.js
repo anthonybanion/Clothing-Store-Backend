@@ -11,8 +11,25 @@
 import express from 'express';
 import userRoutes from './routes/users.route.js';
 import productRoutes from './routes/products.router.js';
+import cors from 'cors';
 
 const app = express();
+
+const corsOptions = {
+  // Dominios permitidos
+  origin: ['https://localhost:3000', 'https://anotherdomain.com'],
+  // Métodos HTTP permitidos
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  // Encabezados permitidos
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  maxAge: 600,
+
+  // Permitir cookies o credenciales
+};
+app.use(cors(corsOptions));
+
+// app.use(cors());
 
 // Middleware to log request details
 app.use((req, res, next) => {
