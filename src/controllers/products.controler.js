@@ -1,121 +1,167 @@
 // ==========================================
 //
-// Description: Product controllers
+// Description: Product controllers using Mongoose and Joi validation.
 //
-// File: product.controlers.js
+// File: product.controller.js
 // Author: Anthony Bañon
-// Created: 2025-10-14
-// Last Updated: 2025-10-14
+// Created: 2025-10-21
+// Last Updated: 2025-10-21
 // ==========================================
 
 import { productsService } from '../services/products.service.js';
 
 const Service = productsService();
 
-export const getOneProduct = (req, res) => {
+/**
+ * Get one product by ID
+ * - Uses Mongoose to retrieve product from database
+ * - Returns 404 if not found
+ */
+export const getOneProduct = async (req, res) => {
   try {
-    // Extract the variables from the request
     const { id } = req.params;
 
-    // The service solves the logic
-    const product = Service.getOne(Number(id));
+    // Retrieve product using service
+    const product = await Service.getOne(id);
 
-    // Returns the result
-    res.send({
-      message: 'Product retrieved successfully: ' + id,
+    if (!product) {
+      return res
+        .status(404)
+        .json({ message: `Product with ID ${id} not found` });
+    }
+
+    res.json({
+      message: 'Product retrieved successfully',
       data: product,
     });
   } catch (error) {
-    res.send({ message: 'Error retrieving product' });
+    res
+      .status(500)
+      .json({ message: 'Error retrieving product', error: error.message });
   }
 };
 
-export const getAllProducts = (req, res) => {
+/**
+ * Get all products
+ * - Retrieves all products from the database
+ */
+export const getAllProducts = async (req, res) => {
   try {
-    // The service solves the logic
-    const productsList = Service.getAll();
-
-    // Returns the result
-    res.send({
+    const productsList = await Service.getAll();
+    res.json({
       message: 'Products retrieved successfully',
       data: productsList,
     });
   } catch (error) {
-    // Handle the error
-    res.send({ message: 'Error retrieving products' });
+    res
+      .status(500)
+      .json({ message: 'Error retrieving products', error: error.message });
   }
 };
 
-export const createOneProduct = (req, res) => {
+/**
+ * Create a new product
+ * - Data is already validated by Joi middleware
+ * - Creates and saves a new product in MongoDB
+ */
+export const createOneProduct = async (req, res) => {
   try {
-    // Extract the variables from the request
-    const { name, price } = req.body;
+    const newProduct = await Service.create(req.body);
 
-    // The service solves the logic
-    const newProduct = Service.create(name, price);
-
-    // Returns the result
-    res.send({
+    res.status(201).json({
       message: 'Product created successfully',
       data: newProduct,
     });
   } catch (error) {
-    res.send({ message: 'Error retrieving products' });
+    res
+      .status(500)
+      .json({ message: 'Error creating product', error: error.message });
   }
 };
 
-export const updateOneProduct = (req, res) => {
+/**
+ * Update a product completely
+ * - Replaces product data using Mongoose findByIdAndUpdate
+ * - runValidators ensures schema validations are applied
+ */
+export const updateOneProduct = async (req, res) => {
   try {
-    // Extract the variables from the request
     const { id } = req.params;
-    const { name, price } = req.body;
 
-    // The service solves the logic
-    const updatedProduct = Service.update(Number(id), name, price);
+    const updatedProduct = await Service.update(id, req.body);
 
-    // Returns the result
-    res.send({
+    if (!updatedProduct) {
+      return res
+        .status(404)
+        .json({ message: `Product with ID ${id} not found` });
+    }
+
+    res.json({
       message: 'Product updated successfully',
       data: updatedProduct,
     });
   } catch (error) {
-    res.send({ message: 'Error updating product' });
+    res
+      .status(500)
+      .json({ message: 'Error updating product', error: error.message });
   }
 };
 
-export const updatePartialOneProduct = (req, res) => {
+/**
+ * Partially update a product
+ * - Only updates provided fields
+ * - runValidators ensures schema validations are applied
+ */
+export const updatePartialOneProduct = async (req, res) => {
   try {
-    // Extract the variables from the request
     const { id } = req.params;
     const updates = req.body;
 
-    // The service solves the logic
-    const updatedProduct = Service.updatePartial(Number(id), updates);
+    const updatedProduct = await Service.updatePartial(id, updates);
 
-    // Returns the result
-    res.send({
+    if (!updatedProduct) {
+      return res
+        .status(404)
+        .json({ message: `Product with ID ${id} not found` });
+    }
+
+    res.json({
       message: 'Product partially updated successfully',
       data: updatedProduct,
     });
   } catch (error) {
-    res.send({ message: 'Error partially updating product' });
+    res
+      .status(500)
+      .json({
+        message: 'Error partially updating product',
+        error: error.message,
+      });
   }
 };
 
-export const deleteOneProduct = (req, res) => {
+/**
+ * Delete a product by ID
+ * - Removes the product from MongoDB
+ * - Returns true if deleted, false if not found
+ */
+export const deleteOneProduct = async (req, res) => {
   try {
-    // Extract the variables from the request
     const { id } = req.params;
+    const deleted = await Service.deleted(id);
 
-    // The service solves the logic
-    const deleted = Service.deleted(Number(id));
+    if (!deleted) {
+      return res
+        .status(404)
+        .json({ message: `Product with ID ${id} not found` });
+    }
 
-    // Returns the result
-    res.send({
+    res.json({
       message: 'Product deleted successfully',
       data: deleted,
     });
   } catch (error) {
-    res.send({ message: 'Error deleting product' });
+    res
+      .status(500)
+      .json({ message: 'Error deleting product', error: error.message });
   }
 };
