@@ -16,7 +16,7 @@ const personSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  lastname: {
+  last_name: {
     type: String,
     required: true,
     trim: true,

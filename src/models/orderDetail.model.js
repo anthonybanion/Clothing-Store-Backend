@@ -16,7 +16,7 @@ const orderDetailSchema = new mongoose.Schema({
     required: true,
     min: 1,
   },
-  historicalPrice: {
+  historical_price: {
     type: Number,
     required: true, // price at the time of purchase
   },
