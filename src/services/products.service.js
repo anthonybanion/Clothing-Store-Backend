@@ -12,6 +12,8 @@ export const productsService = () => {
   async function create(data) {
     // data already validated by middleware
     const product = new Product(data);
+
+    //  Save the new product to the database
     return product.save();
   }
 
@@ -32,8 +34,8 @@ export const productsService = () => {
   }
 
   async function deleted(id) {
-    // Delete a product by ID
-    const result = await Product.findByIdAndDelete(id).exec();
+    // Soft delete a product by ID
+    const result = await Product.findByIdAndUpdate(id, { state: false }).exec();
     return result ? true : false;
   }
 

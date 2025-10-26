@@ -66,8 +66,10 @@ export const getAllProducts = async (req, res) => {
  */
 export const createOneProduct = async (req, res) => {
   try {
+    // Create product using service
     const newProduct = await Service.create(req.body);
 
+    // Respond with the created product
     res.status(201).json({
       message: 'Product created successfully',
       data: newProduct,
@@ -130,12 +132,10 @@ export const updatePartialOneProduct = async (req, res) => {
       data: updatedProduct,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: 'Error partially updating product',
-        error: error.message,
-      });
+    res.status(500).json({
+      message: 'Error partially updating product',
+      error: error.message,
+    });
   }
 };
 
