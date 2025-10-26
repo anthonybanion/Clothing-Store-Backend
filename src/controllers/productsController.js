@@ -8,7 +8,7 @@
 // Last Updated: 2025-10-21
 // ==========================================
 
-import { productsService } from '../services/products.service.js';
+import { productsService } from '../services/productService.js';
 
 const Service = productsService();
 

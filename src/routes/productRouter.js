@@ -16,8 +16,8 @@ import {
   updateOneProduct,
   updatePartialOneProduct,
   deleteOneProduct,
-} from '../controllers/products.controller.js';
-import { productValidator } from '../middlewares/product.middleware.js';
+} from '../controllers/productsController.js';
+import { productValidator } from '../middlewares/productMiddleware.js';
 
 const router = Router();
 
