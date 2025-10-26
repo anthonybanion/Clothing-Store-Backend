@@ -16,7 +16,8 @@ import {
   updateOneProduct,
   updatePartialOneProduct,
   deleteOneProduct,
-} from '../controllers/products.controler.js';
+} from '../controllers/productsController.js';
+import { productValidator } from '../middlewares/productMiddleware.js';
 
 const router = Router();
 
@@ -27,13 +28,13 @@ router.get('/:id', getOneProduct);
 router.get('/', getAllProducts);
 
 //POST a new product
-router.post('/', createOneProduct);
+router.post('/', productValidator, createOneProduct);
 
 //PUT update a product
-router.put('/:id', updateOneProduct);
+router.put('/:id', productValidator, updateOneProduct);
 
 //PATCH update a product partially
-router.patch('/:id', updatePartialOneProduct);
+router.patch('/:id', productValidator, updatePartialOneProduct);
 
 //DELETE a product
 router.delete('/:id', deleteOneProduct);
