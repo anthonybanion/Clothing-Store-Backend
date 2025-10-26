@@ -16,16 +16,16 @@ import {
   updateOneProduct,
   updatePartialOneProduct,
   deleteOneProduct,
-} from '../controllers/products.controler.js';
-import { productValidator } from '../middelwares/product.middleware.js';
+} from '../controllers/products.controller.js';
+import { productValidator } from '../middlewares/product.middleware.js';
 
 const router = Router();
 
 //GET whit a id
-router.get('/:id', productValidator, getOneProduct);
+router.get('/:id', getOneProduct);
 
 //GET all
-router.get('/', productValidator, getAllProducts);
+router.get('/', getAllProducts);
 
 //POST a new product
 router.post('/', productValidator, createOneProduct);
@@ -37,6 +37,6 @@ router.put('/:id', productValidator, updateOneProduct);
 router.patch('/:id', productValidator, updatePartialOneProduct);
 
 //DELETE a product
-router.delete('/:id', productValidator, deleteOneProduct);
+router.delete('/:id', deleteOneProduct);
 
 export default router;

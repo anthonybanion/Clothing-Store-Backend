@@ -47,7 +47,7 @@ The dictionary covers the six core system tables:
 |       | `dni`           | `{UQ, O}`  | `CHAR(8)`      | `^[0-9]{8}$`                               | `NULL`        | Optional; unique national ID   |
 |       | `profile_photo` | `{O}`      | `VARCHAR(500)` | `^https:\/\/.*$`                           | `NULL`        | URL of user profile image      |
 |       | `email`         | `{NN, UQ}` | `VARCHAR(150)` | `^[\\w\\.-]{1,64}@[\\w\\.-]+\\.\\w{2,63}$` | -             | Unique email; stored lowercase |
-|       | `active`        | `{NN}`     | `BOOLEAN`      | `{true, false}`                            | `true`        | Account active status          |
+|       | `is_active`     | `{NN}`     | `BOOLEAN`      | `{true, false}`                            | `true`        | Account active status          |
 
 ### 🔐 Accounts - Access & Authentication
 
@@ -57,7 +57,7 @@ The dictionary covers the six core system tables:
 |       | `user`       | `{NN, UQ}` | `VARCHAR(30)`             | `^[a-zA-Z0-9._]{2,30}$` | -             | Unique username. Stored in lowercase                          |
 |       | `password`   | `{NN}`     | `VARCHAR(255)`            | -                       | -             | Store only PASSWORD HASH (bcrypt/argon2)                      |
 |       | `role`       | `{NN}`     | `ENUM('client', 'admin')` | `{'client', 'admin'}`   | `'client'`    | User role within the system                                   |
-|       | `active`     | `{NN}`     | `BOOLEAN`                 | `{true, false}`         | `true`        | Account active status                                         |
+|       | `is_active`  | `{NN}`     | `BOOLEAN`                 | `{true, false}`         | `true`        | Account active status                                         |
 | 🔗 FK | `person_id`  | `{NN, UQ}` | `INT UNSIGNED`            | -                       | -             | Foreign Key (1:1 relationship). References Persons(person_id) |
 
 ### 🛒 Orders - Customer Orders
@@ -91,7 +91,7 @@ The dictionary covers the six core system tables:
 |       | `description` | `{O}`      | `TEXT`          | `LENGTH(description) BETWEEN 2 AND 2000` | `NULL`        | Product description (2-2000 chars if provided)          |
 |       | `price`       | `{NN}`     | `DECIMAL(10,2)` | `CHECK (price > 0)`                      | -             | The product's current price                             |
 |       | `stock`       | `{NN}`     | `INT UNSIGNED`  | `CHECK (stock >= 0)`                     | `0`           | Available quantity. 0 when out of stock                 |
-|       | `active`      | `{NN}`     | `BOOLEAN`       | `{true, false}`                          | `true`        | Product active status                                   |
+|       | `is_active`   | `{NN}`     | `BOOLEAN`       | `{true, false}`                          | `true`        | Product active status                                   |
 | 🔗 FK | `category_id` | `{NN}`     | `INT UNSIGNED`  | -                                        | -             | Foreign Key. References Categories(category_id)         |
 
 ### 🏷️ Categories - Product Categorization
@@ -102,7 +102,7 @@ The dictionary covers the six core system tables:
 |       | `name`        | `{NN, UQ}` | `VARCHAR(100)` | `^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,'\-]{2,100}$` | -             | Category name with letters, numbers, spaces, punctuation |
 |       | `image`       | `{O}`      | `VARCHAR(255)` | `^https:\/\/.*$`                         | `NULL`        | URL of category image                                    |
 |       | `description` | `{O}`      | `TEXT`         | `LENGTH(description) BETWEEN 2 AND 2000` | `NULL`        | Category description (2-2000 chars if provided)          |
-|       | `active`      | `{NN}`     | `BOOLEAN`      | `{true, false}`                          | `true`        | Category active status                                   |
+|       | `is_active`   | `{NN}`     | `BOOLEAN`      | `{true, false}`                          | `true`        | Category active status                                   |
 
 ---
 

@@ -5,7 +5,8 @@
 // File: category.model.js
 // Author: Anthony Bañon
 // Created: 2025-10-21
-// Last Updated: 2025-10-21
+// Last Updated: 2025-10-26
+// Changes: Added detailed validation and comments
 // ==========================================
 
 import mongoose from 'mongoose';
