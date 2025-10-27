@@ -5,9 +5,8 @@
 // File: productService.js
 // Author: Anthony Bañon
 // Created: 2025-10-21
-// Last Updated: 2025-10-26
-// Changes: Initial creation and implementation of product
-// service methods with Class structure
+// Last Updated: 2025-10-27
+// Changes: Create many products
 // ==========================================
 
 import Product from '../models/productModel.js';
@@ -39,6 +38,16 @@ class ProductService {
   async create(data) {
     const product = new Product(data);
     return await product.save();
+  }
+
+  /**
+   * Create multiple products
+   * param {Array} data - Array of product data
+   * returns {Promise<Array>} Created products
+   */
+  async createMany(data) {
+    const products = await Product.insertMany(data);
+    return products;
   }
 
   /**
