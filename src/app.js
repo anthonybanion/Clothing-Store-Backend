@@ -10,7 +10,8 @@
 
 import express from 'express';
 import userRoute from './routes/userRoute.js';
-import productRoute from './routes/productRouter.js';
+import productRoute from './routes/productRoute.js';
+import categoryRoute from './routes/categoryRoute.js';
 
 const app = express();
 
@@ -30,5 +31,6 @@ app.use(express.json());
 // Routes
 app.use('/users', userRoute);
 app.use('/products', productRoute);
+app.use('/categories', categoryRoute);
 
 export default app;
