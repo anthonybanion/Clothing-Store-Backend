@@ -6,10 +6,11 @@
 // Author: Anthony Bañon
 // Created: 2025-10-14
 // Last Updated: 2025-10-26
-// Changes: Added new routes for category and stock, updated file naming
+// Changes: Added express-validator middleware and new routes
 // ==========================================
 
 import { Router } from 'express';
+// Controllers
 import {
   getOneProduct,
   getAllProducts,
@@ -20,6 +21,15 @@ import {
   updateProductStock,
   deleteOneProduct,
 } from '../controllers/productController.js';
+// Validations
+import {
+  createProductValidation,
+  updateProductValidation,
+  stockUpdateValidation,
+  productIdValidation,
+} from '../validations/productValidator.js';
+// Middleware to handle validation errors
+import { handleValidationErrors } from '../middlewares/validationMiddleware.js';
 
 const router = Router();
 
@@ -29,22 +39,47 @@ router.get('/', getAllProducts);
 // GET products by category - NO validation needed (read-only)
 router.get('/category/:categoryId', getProductsByCategory);
 
-// GET one product by ID - NO validation needed (read-only)
-router.get('/:id', getOneProduct);
+// GET one product by ID - ID validation only
+router.get('/:id', productIdValidation, handleValidationErrors, getOneProduct);
 
-// POST a new product - NEEDS validation
-router.post('/', createOneProduct);
+// POST a new product - Full validation required
+router.post(
+  '/',
+  createProductValidation,
+  handleValidationErrors,
+  createOneProduct
+);
 
-// PUT update a product completely - NEEDS validation
-router.put('/:id', updateOneProduct);
+// PUT update a product completely - Full validation
+router.put(
+  '/:id',
+  updateProductValidation,
+  handleValidationErrors,
+  updateOneProduct
+);
 
-// PATCH update a product partially - NEEDS validation
-router.patch('/:id', updatePartialOneProduct);
+// PATCH update a product partially - Partial validation
+router.patch(
+  '/:id',
+  updateProductValidation,
+  handleValidationErrors,
+  updatePartialOneProduct
+);
 
-// PATCH update product stock - NEEDS validation (quantity)
-router.patch('/:id/stock', updateProductStock);
+// PATCH update product stock - Quantity validation only
+router.patch(
+  '/:id/stock',
+  stockUpdateValidation,
+  handleValidationErrors,
+  updateProductStock
+);
 
-// DELETE a product - NO validation needed (no body data)
-router.delete('/:id', deleteOneProduct);
+// DELETE a product - ID validation only
+router.delete(
+  '/:id',
+  productIdValidation,
+  handleValidationErrors,
+  deleteOneProduct
+);
 
 export default router;
