@@ -18,6 +18,11 @@ class CategoryService {
     return await Category.find({ is_active: true }).exec();
   }
 
+  /**
+   * Create a new category
+   * param {Object} data - Category data
+   * returns {Promise<Object>} Created category
+   */
   async create(data) {
     const category = new Category(data);
     return await category.save();
@@ -30,11 +35,13 @@ class CategoryService {
    * returns {Promise<Object>} Updated category
    */
   async update(id, data) {
-    const updatedCategory = await Category.findByIdAndUpdate(id, data, {
-      new: true,
-      runValidators: true,
-    }).exec();
-    return updatedCategory;
+    const category = await Category.findById(id);
+    if (!category) return null;
+
+    // Replace all fields with new data
+    Object.assign(category, data);
+    // Validates entire schema with save()
+    return await category.save();
   }
 
   /**
@@ -51,8 +58,17 @@ class CategoryService {
     return updatedCategory;
   }
 
+  /**
+   *  Soft delete a category by setting is_active to false
+   * param {string} id - Category ID
+   * returns {Promise<Object>} Deleted category
+   */
   async delete(id) {
-    return await Category.findByIdAndDelete(id).exec();
+    return await Category.findByIdAndUpdate(
+      id,
+      { is_active: false },
+      { new: true }
+    ).exec();
   }
 }
 

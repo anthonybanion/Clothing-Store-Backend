@@ -48,13 +48,14 @@ class ProductService {
    * returns {Promise<Object>} Updated product
    */
   async update(id, data) {
-    // COMPLETE REPLACEMENT - Validates all required fields
+    // Find existing product
     const product = await Product.findById(id);
     if (!product) return null;
 
     // Replace all fields with new data
     Object.assign(product, data);
-    return await product.save(); // Validates entire schema
+    // Validates mongoose entire schema with save()
+    return await product.save();
   }
 
   /**
