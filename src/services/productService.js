@@ -1,50 +1,126 @@
+// ==========================================
+//
+// Description: Product service handling business logic
+//
+// File: productService.js
+// Author: Anthony Bañon
+// Created: 2025-10-21
+// Last Updated: 2025-10-26
+// Changes: Initial creation and implementation of product
+// service methods with Class structure
+// ==========================================
+
 import Product from '../models/productModel.js';
 
-export const productsService = () => {
-  async function getOne(id) {
-    return Product.findById(id).exec();
+class ProductService {
+  /**
+   * Get one product by ID
+   * param {string} id - Product ID
+   * returns {Promise<Object>} Product document
+   */
+
+  async getOne(id) {
+    return await Product.findById(id).exec();
   }
 
-  async function getAll() {
-    return Product.find().exec();
+  /**
+   * Get all active products
+   * returns {Promise<Array>} List of products
+   */
+  async getAll() {
+    return await Product.find({ active: true }).exec();
   }
 
-  async function create(data) {
-    // data already validated by middleware
+  /**
+   * Create a new product
+   * param {Object} data - Product data
+   * returns {Promise<Object>} Created product
+   */
+  async create(data) {
     const product = new Product(data);
-
-    //  Save the new product to the database
-    return product.save();
+    return await product.save();
   }
 
-  async function update(id, data) {
-    // Replace the entire document
-    return Product.findByIdAndUpdate(id, data, {
+  /**
+   * Update a product completely
+   * param {string} id - Product ID
+   * param {Object} data - Complete product data
+   * returns {Promise<Object>} Updated product
+   */
+  async update(id, data) {
+    return await Product.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,
     }).exec();
   }
 
-  async function updatePartial(id, updates) {
-    // Update only the fields present
-    return Product.findByIdAndUpdate(id, updates, {
+  /**
+   * Partially update a product
+   * param {string} id - Product ID
+   * param {Object} updates - Partial product data
+   * returns {Promise<Object>} Updated product
+   */
+  async updatePartial(id, updates) {
+    return await Product.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
     }).exec();
   }
 
-  async function deleted(id) {
-    // Soft delete a product by ID
-    const result = await Product.findByIdAndUpdate(id, { state: false }).exec();
-    return result ? true : false;
+  /**
+   * Delete a product (soft delete)
+   * param {string} id - Product ID
+   * returns {Promise<Object>} Deleted product
+   */
+  async delete(id) {
+    return await Product.findByIdAndUpdate(
+      id,
+      { active: false },
+      { new: true }
+    ).exec();
   }
 
-  return {
-    getOne,
-    getAll,
-    create,
-    update,
-    updatePartial,
-    deleted,
-  };
-};
+  /**
+   * Get products by category
+   * param {string} categoryId - Category ID
+   * returns {Promise<Array>} List of products in category
+   */
+  async getByCategory(categoryId) {
+    return await Product.find({
+      category: categoryId,
+      active: true,
+    }).exec();
+  }
+
+  /**
+   * Check if SKU already exists
+   * param {string} sku - SKU to check
+   * param {string} excludeId - Product ID to exclude (for updates)
+   * returns {Promise<boolean>} True if SKU exists
+   */
+  async skuExists(sku, excludeId = null) {
+    const query = { sku };
+    if (excludeId) {
+      query._id = { $ne: excludeId };
+    }
+    const existing = await Product.findOne(query).exec();
+    return !!existing;
+  }
+
+  /**
+   * Update product stock
+   * param {string} id - Product ID
+   * param {number} quantity - Quantity to add/subtract
+   * returns {Promise<Object>} Updated product
+   */
+  async updateStock(id, quantity) {
+    return await Product.findByIdAndUpdate(
+      id,
+      { $inc: { stock: quantity } },
+      { new: true, runValidators: true }
+    ).exec();
+  }
+}
+
+// Export single instance (Singleton)
+export default new ProductService();
