@@ -25,6 +25,7 @@ import {
 import {
   createProductValidation,
   updateProductValidation,
+  updatePartialProductValidation,
   stockUpdateValidation,
   productIdValidation,
 } from '../validations/productValidator.js';
@@ -61,7 +62,7 @@ router.put(
 // PATCH update a product partially - Partial validation
 router.patch(
   '/:id',
-  updateProductValidation,
+  updatePartialProductValidation,
   handleValidationErrors,
   updatePartialOneProduct
 );

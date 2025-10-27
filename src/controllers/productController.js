@@ -98,22 +98,20 @@ export const createOneProduct = async (req, res) => {
 
 export const updateOneProduct = async (req, res) => {
   try {
-    // Get product ID from params and sku from body
     const { id } = req.params;
-    const { sku } = req.body;
+    const data = req.body;
+    const { sku } = data;
 
     if (sku) {
-      // Check if SKU already exists excluding current product
       const skuExists = await productService.skuExists(sku, id);
       if (skuExists) {
-        // Conflict response for duplicate SKU
         return res.status(409).json({
           message: 'Product with this SKU already exists',
         });
       }
     }
     // Update product completely
-    const updatedProduct = await productService.update(id, req.body);
+    const updatedProduct = await productService.update(id, data);
 
     if (!updatedProduct) {
       // If product not found, return 404

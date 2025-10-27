@@ -63,21 +63,108 @@ export const createProductValidation = [
 export const updateProductValidation = [
   param('id').isMongoId().withMessage('Invalid product ID'),
 
-  body('sku').optional().isLength({ min: 3, max: 20 }).trim().toUpperCase(),
+  // FOR COMPLETE UPDATE - all fields required
+  body('sku')
+    .notEmpty()
+    .withMessage('SKU is required for complete update')
+    .bail() // ← Stop if empty
+    .isLength({ min: 3, max: 20 })
+    .withMessage('SKU must be 3-20 characters')
+    .bail() // ← Stop if length fails
+    .trim()
+    .toUpperCase(),
 
-  body('name').optional().isLength({ min: 2, max: 150 }).trim(),
+  body('name')
+    .notEmpty()
+    .withMessage('Product name is required for complete update')
+    .bail() // ← Stop if empty
+    .isLength({ min: 2, max: 150 })
+    .withMessage('Name must be 2-150 characters')
+    .bail() // ← Stop if length fails
+    .trim(),
 
-  body('image').optional().isURL(),
+  body('price')
+    .notEmpty()
+    .withMessage('Price is required for complete update')
+    .bail() // ← Stop if empty
+    .isFloat({ min: 0.01 })
+    .withMessage('Price must be greater than 0'),
 
-  body('description').optional().isLength({ max: 2000 }).trim(),
+  body('category')
+    .notEmpty()
+    .withMessage('Category is required for complete update')
+    .bail() // ← Stop if empty
+    .isMongoId()
+    .withMessage('Valid category ID is required'),
 
-  body('price').optional().isFloat({ min: 0.01 }),
+  // Optional fields - no .notEmpty() needed
+  body('image').optional().isURL().withMessage('Image must be a valid URL'),
+  body('description')
+    .optional()
+    .isLength({ max: 2000 })
+    .withMessage('Description cannot exceed 2000 characters')
+    .trim(),
+  body('stock')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('Stock must be a non-negative integer'),
+  body('is_active')
+    .optional()
+    .isBoolean()
+    .withMessage('Active status must be true or false'),
+];
 
-  body('stock').optional().isInt({ min: 0 }),
+export const updatePartialProductValidation = [
+  param('id').isMongoId().withMessage('Invalid product ID'),
 
-  body('is_active').optional().isBoolean(),
+  // FOR PARTIAL UPDATE - all fields optional
+  body('sku')
+    .optional()
+    .isLength({ min: 3, max: 20 })
+    .withMessage('SKU must be 3-20 characters')
+    .bail()
+    .trim()
+    .toUpperCase(),
 
-  body('category').optional().isMongoId(),
+  body('name')
+    .optional()
+    .isLength({ min: 2, max: 150 })
+    .withMessage('Name must be 2-150 characters')
+    .bail()
+    .trim(),
+
+  body('price')
+    .optional()
+    .isFloat({ min: 0.01 })
+    .withMessage('Price must be greater than 0'),
+
+  body('category')
+    .optional()
+    .isMongoId()
+    .withMessage('Valid category ID is required'),
+
+  body('image').optional().isURL().withMessage('Image must be a valid URL'),
+  body('description')
+    .optional()
+    .isLength({ max: 2000 })
+    .withMessage('Description cannot exceed 2000 characters')
+    .trim(),
+  body('stock')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('Stock must be a non-negative integer'),
+  body('is_active')
+    .optional()
+    .isBoolean()
+    .withMessage('Active status must be true or false'),
+
+  // Validate at least one field is provided
+  body().custom((value, { req }) => {
+    if (Object.keys(req.body).length === 0) {
+      throw new Error('At least one field must be provided for update');
+    }
+    return true;
+  }),
 ];
 
 export const productIdValidation = [
