@@ -2,41 +2,49 @@
 //
 // Description: Product routes configuration
 //
-// File: product.routers.js
+// File: productRouter.js
 // Author: Anthony Bañon
 // Created: 2025-10-14
-// Last Updated: 2025-10-14
+// Last Updated: 2025-10-26
+// Changes: Added new routes for category and stock, updated file naming
 // ==========================================
 
 import { Router } from 'express';
 import {
   getOneProduct,
   getAllProducts,
+  getProductsByCategory,
   createOneProduct,
   updateOneProduct,
   updatePartialOneProduct,
+  updateProductStock,
   deleteOneProduct,
-} from '../controllers/productsController.js';
-import { productValidator } from '../middlewares/productMiddleware.js';
+} from '../controllers/productController.js';
 
 const router = Router();
 
-//GET whit a id
-router.get('/:id', getOneProduct);
-
-//GET all
+// GET all products - NO validation needed (read-only)
 router.get('/', getAllProducts);
 
-//POST a new product
-router.post('/', productValidator, createOneProduct);
+// GET products by category - NO validation needed (read-only)
+router.get('/category/:categoryId', getProductsByCategory);
 
-//PUT update a product
-router.put('/:id', productValidator, updateOneProduct);
+// GET one product by ID - NO validation needed (read-only)
+router.get('/:id', getOneProduct);
 
-//PATCH update a product partially
-router.patch('/:id', productValidator, updatePartialOneProduct);
+// POST a new product - NEEDS validation
+router.post('/', createOneProduct);
 
-//DELETE a product
+// PUT update a product completely - NEEDS validation
+router.put('/:id', updateOneProduct);
+
+// PATCH update a product partially - NEEDS validation
+router.patch('/:id', updatePartialOneProduct);
+
+// PATCH update product stock - NEEDS validation (quantity)
+router.patch('/:id/stock', updateProductStock);
+
+// DELETE a product - NO validation needed (no body data)
 router.delete('/:id', deleteOneProduct);
 
 export default router;

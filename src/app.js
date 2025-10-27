@@ -9,8 +9,8 @@
 // ==========================================
 
 import express from 'express';
-import userRoutes from './routes/users.route.js';
-import productRoutes from './routes/products.router.js';
+import userRoute from './routes/userRoute.js';
+import productRoute from './routes/productRouter.js';
 
 const app = express();
 
@@ -28,7 +28,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 // Routes
-app.use('/users', userRoutes);
-app.use('/products', productRoutes);
+app.use('/users', userRoute);
+app.use('/products', productRoute);
 
 export default app;
