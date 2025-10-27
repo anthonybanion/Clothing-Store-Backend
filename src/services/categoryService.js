@@ -1,3 +1,13 @@
+// ==========================================
+//
+// Description: Category service handling business logic
+//
+// File: categoryService.js
+// Author: Anthony Bañon
+// Created: 2025-10-27
+// Last Updated: 2025-10-27
+// ==========================================
+
 import Category from '../models/categoryModel.js';
 
 class CategoryService {
