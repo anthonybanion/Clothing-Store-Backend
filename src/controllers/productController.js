@@ -172,7 +172,7 @@ export const updateProductStock = async (req, res) => {
   try {
     // Get product ID and quantity from request
     const { id } = req.params;
-    const { quantity } = req.body;
+    let { quantity } = req.body;
 
     if (typeof quantity !== 'number') {
       // Validate quantity is a number

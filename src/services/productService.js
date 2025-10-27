@@ -28,7 +28,7 @@ class ProductService {
    * returns {Promise<Array>} List of products
    */
   async getAll() {
-    return await Product.find({ active: true }).exec();
+    return await Product.find({ is_active: true }).exec();
   }
 
   /**
@@ -75,7 +75,7 @@ class ProductService {
   async delete(id) {
     return await Product.findByIdAndUpdate(
       id,
-      { active: false },
+      { is_active: false },
       { new: true }
     ).exec();
   }
@@ -88,7 +88,7 @@ class ProductService {
   async getByCategory(categoryId) {
     return await Product.find({
       category: categoryId,
-      active: true,
+      is_active: true,
     }).exec();
   }
 
