@@ -4,15 +4,14 @@
 //
 // File: app.js
 // Author: Anthony Bañon
-// Created: 2025-10-13
-// Last Updated: 2025-10-13
+// Created: 2025-9-13
+// Last Updated: 2025-10-28
+// Changes: Added CORS middleware, request logging and organized routes
 // ==========================================
 
 import express from 'express';
 import { corsMiddleware, corsErrorHandler } from './config/exports.js';
-import userRoute from './routes/userRoute.js';
-import productRoute from './routes/productRoute.js';
-import categoryRoute from './routes/categoryRoute.js';
+import apiRouter from './routes/api.js';
 
 const app = express();
 
@@ -34,9 +33,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
-app.use('/users', userRoute);
-app.use('/products', productRoute);
-app.use('/categories', categoryRoute);
+// All API routes
+app.use('/api', apiRouter);
 
 export default app;
