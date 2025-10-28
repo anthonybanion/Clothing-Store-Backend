@@ -9,24 +9,30 @@
 // ==========================================
 
 import express from 'express';
+import { corsMiddleware, corsErrorHandler } from './config/exports.js';
 import userRoute from './routes/userRoute.js';
 import productRoute from './routes/productRoute.js';
 import categoryRoute from './routes/categoryRoute.js';
 
 const app = express();
 
+// CORS Middleware
+app.use(corsMiddleware);
+app.use(corsErrorHandler);
+
+// Middleware to parse JSON and URL-encoded bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Middleware to log request details
 app.use((req, res, next) => {
   console.log(
-    `Data received  at: ${new Date().toISOString()} | Method: ${
+    `Data received at: ${new Date().toISOString()} | Method: ${
       req.method
     } | URL: ${req.url}`
   );
   next();
 });
-
-// Middleware to parse JSON bodies
-app.use(express.json());
 
 // Routes
 app.use('/users', userRoute);

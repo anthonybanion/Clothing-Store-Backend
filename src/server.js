@@ -5,24 +5,24 @@
 // File: server.js
 // Author: Anthony Bañon
 // Created: 2025-10-13
-// Last Updated: 2025-10-13
+// Last Updated: 2025-10-27
 // ==========================================
 
 import app from './app.js';
 import env from 'dotenv';
-import mongoose from 'mongoose';
+import { connectDatabase, validateEnvironment } from './config/exports.js';
 
 // Load environment variables
 env.config();
 
 // Define the port
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
+
+// Validate environment variables
+validateEnvironment();
 
 // Connect to MongoDB Atlas
-mongoose
-  .connect(process.env.URLDB)
-  .then(() => console.log('✅ Connected to MongoDB Atlas'))
-  .catch((err) => console.error('❌ MongoDB connection error:', err));
+connectDatabase();
 
 // Start the server
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
