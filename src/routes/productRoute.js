@@ -17,7 +17,7 @@ import {
   getProductsByCategory,
   createOneProduct,
   updateOneProduct,
-  updatePartialOneProduct,
+  updateOnePartialProduct,
   updateProductStock,
   deleteOneProduct,
 } from '../controllers/productController.js';
@@ -64,7 +64,7 @@ router.patch(
   '/:id',
   updatePartialProductValidation,
   handleValidationErrors,
-  updatePartialOneProduct
+  updateOnePartialProduct
 );
 
 // PATCH update product stock - Quantity validation only

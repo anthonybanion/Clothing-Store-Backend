@@ -130,7 +130,7 @@ export const updateOneProduct = async (req, res) => {
   }
 };
 
-export const updatePartialOneProduct = async (req, res) => {
+export const updateOnePartialProduct = async (req, res) => {
   try {
     // Get product ID from params and updates from body
     const { id } = req.params;
