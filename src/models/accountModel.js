@@ -5,79 +5,60 @@
 // File: account.model.js
 // Author: Anthony Bañon
 // Created: 2025-10-21
-// Last Updated: 2025-10-26
-// Changes: Added detailed validation and comments
+// Last Updated: 2025-10-29
+// Changes:Delete detailed validation and comments
 // ==========================================
 
 import mongoose from 'mongoose';
 
-// Regular expressions (based on DB dictionary)
-const USERNAME_REGEX = /^[a-zA-Z0-9._]{2,30}$/;
-
 const accountSchema = new mongoose.Schema(
   {
-    // Unique username (stored lowercase)
+    // Unique username
     username: {
       type: String,
-      required: [true, 'Username is required.'],
+      required: true,
       unique: true,
       lowercase: true,
       trim: true,
-      minlength: [2, 'Username must be at least 2 characters long.'],
-      maxlength: [30, 'Username cannot exceed 30 characters.'],
-      match: [
-        USERNAME_REGEX,
-        'Username may only contain letters, numbers, dots, and underscores.',
-      ],
-      comment: 'Unique username. Stored in lowercase.',
+      comment: 'Unique username',
     },
 
-    // Password hash (bcrypt or argon2)
+    // Password hash
     password: {
       type: String,
-      required: [true, 'Password hash is required.'],
-      maxlength: [255, 'Password hash cannot exceed 255 characters.'],
-      comment:
-        'Stores only the password hash (bcrypt or argon2). Validation handled in application logic.',
+      required: true,
+      comment: 'Password hash (bcrypt or argon2)',
     },
 
-    // User role (ENUM: client, admin)
+    // User role
     role: {
       type: String,
-      required: [true, 'User role is required.'],
-      enum: {
-        values: ['client', 'admin'],
-        message: 'Role must be either "client" or "admin".',
-      },
+      required: true,
+      enum: ['client', 'admin'],
       default: 'client',
-      comment: 'User role within the system.',
+      comment: 'User role within the system',
     },
 
     // Account active status
     active: {
       type: Boolean,
-      required: [true, 'Account active status is required.'],
+      required: true,
       default: true,
-      enum: {
-        values: [true, false],
-        message: 'Active status must be true or false.',
-      },
-      comment: 'Indicates if the account is active.',
+      comment: 'Account active status',
     },
 
-    // Foreign key (1:1 relationship) with Person
+    // Reference to Person
     person: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Person',
-      required: [true, 'Person reference is required.'],
+      required: true,
       unique: true,
-      comment:
-        'Foreign Key (1:1). References Persons(person_id). Each account is linked to exactly one person.',
+      comment: 'Reference to Person (1:1 relationship)',
     },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt
-    versionKey: false, // Disables __v field
+    timestamps: true,
+    versionKey: false,
   }
 );
 
