@@ -48,10 +48,14 @@ class ProductService {
    * returns {Promise<Object>} Updated product
    */
   async update(id, data) {
-    return await Product.findByIdAndUpdate(id, data, {
-      new: true,
-      runValidators: true,
-    }).exec();
+    // Find existing product
+    const product = await Product.findById(id);
+    if (!product) return null;
+
+    // Replace all fields with new data
+    Object.assign(product, data);
+    // Validates mongoose entire schema with save()
+    return await product.save();
   }
 
   /**
@@ -72,12 +76,21 @@ class ProductService {
    * param {string} id - Product ID
    * returns {Promise<Object>} Deleted product
    */
-  async delete(id) {
+  async updateStatus(id, is_active=false) {
     return await Product.findByIdAndUpdate(
       id,
-      { is_active: false },
+      { is_active: is_active },
       { new: true }
     ).exec();
+  }
+
+  /**
+   * Delete a product permanently
+   * param {string} id - Product ID
+   * returns {Promise<Object>} Deleted product
+   */
+  async delete(id) {
+    return await Product.findByIdAndDelete(id).exec();
   }
 
   /**

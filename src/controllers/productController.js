@@ -10,6 +10,7 @@
 
 import productService from '../services/productService.js';
 import { handleMongooseError } from '../utils/mongooseErrorHandler.js';
+import { CODE } from '../config/constants.js';
 
 export const getOneProduct = async (req, res) => {
   try {
@@ -19,12 +20,12 @@ export const getOneProduct = async (req, res) => {
     const product = await productService.getOne(id);
     // If not found, return 404
     if (!product) {
-      return res.status(404).json({
+      return res.status(CODE.NOT_FOUND).json({
         message: `Product with ID ${id} not found`,
       });
     }
     // Successful response
-    res.json({
+    res.status(CODE.SUCCESS).json({
       message: 'Product retrieved successfully',
       data: product,
     });
@@ -41,7 +42,7 @@ export const getAllProducts = async (req, res) => {
     // Fetch all products from service
     const productsList = await productService.getAll();
     // Successful response
-    res.json({
+    res.status(CODE.SUCCESS).json({
       message: 'Products retrieved successfully',
       data: productsList,
     });
@@ -60,7 +61,7 @@ export const getProductsByCategory = async (req, res) => {
     // Fetch products from service
     const products = await productService.getByCategory(categoryId);
     // Successful response
-    res.json({
+    res.status(CODE.SUCCESS).json({
       message: 'Products by category retrieved successfully',
       data: products,
     });
@@ -79,14 +80,14 @@ export const createOneProduct = async (req, res) => {
     // Check if SKU already exists
     const skuExists = await productService.skuExists(sku);
     if (skuExists) {
-      return res.status(409).json({
+      return res.status(CODE.CONFLICT).json({
         message: 'Product with this SKU already exists',
       });
     }
     // Create new product
     const newProduct = await productService.create(req.body);
     // Successful response
-    res.status(201).json({
+    res.status(CODE.CREATED).json({
       message: 'Product created successfully',
       data: newProduct,
     });
@@ -98,31 +99,29 @@ export const createOneProduct = async (req, res) => {
 
 export const updateOneProduct = async (req, res) => {
   try {
-    // Get product ID from params and sku from body
     const { id } = req.params;
-    const { sku } = req.body;
+    const data = req.body;
+    const { sku } = data;
 
     if (sku) {
-      // Check if SKU already exists excluding current product
       const skuExists = await productService.skuExists(sku, id);
       if (skuExists) {
-        // Conflict response for duplicate SKU
-        return res.status(409).json({
+        return res.status(CODE.CONFLICT).json({
           message: 'Product with this SKU already exists',
         });
       }
     }
     // Update product completely
-    const updatedProduct = await productService.update(id, req.body);
+    const updatedProduct = await productService.update(id, data);
 
     if (!updatedProduct) {
       // If product not found, return 404
-      return res.status(404).json({
+      return res.status(CODE.NOT_FOUND).json({
         message: `Product with ID ${id} not found`,
       });
     }
     // Successful response
-    res.json({
+    res.status(CODE.SUCCESS).json({
       message: 'Product updated successfully',
       data: updatedProduct,
     });
@@ -132,7 +131,7 @@ export const updateOneProduct = async (req, res) => {
   }
 };
 
-export const updatePartialOneProduct = async (req, res) => {
+export const updateOnePartialProduct = async (req, res) => {
   try {
     // Get product ID from params and updates from body
     const { id } = req.params;
@@ -143,7 +142,7 @@ export const updatePartialOneProduct = async (req, res) => {
       // Check if SKU already exists excluding current product
       const skuExists = await productService.skuExists(sku, id);
       if (skuExists) {
-        return res.status(409).json({
+        return res.status(CODE.CONFLICT).json({
           message: 'Product with this SKU already exists',
         });
       }
@@ -153,12 +152,12 @@ export const updatePartialOneProduct = async (req, res) => {
 
     if (!updatedProduct) {
       // If product not found, return 404
-      return res.status(404).json({
+      return res.status(CODE.NOT_FOUND).json({
         message: `Product with ID ${id} not found`,
       });
     }
     // Successful response
-    res.json({
+    res.status(CODE.SUCCESS).json({
       message: 'Product partially updated successfully',
       data: updatedProduct,
     });
@@ -176,7 +175,7 @@ export const updateProductStock = async (req, res) => {
 
     if (typeof quantity !== 'number') {
       // Validate quantity is a number
-      return res.status(400).json({
+      return res.status(CODE.BAD_REQUEST).json({
         message: 'Quantity must be a number',
       });
     }
@@ -185,12 +184,12 @@ export const updateProductStock = async (req, res) => {
 
     if (!updatedProduct) {
       // If product not found, return 404
-      return res.status(404).json({
+      return res.status(CODE.NOT_FOUND).json({
         message: `Product with ID ${id} not found`,
       });
     }
     // Successful response
-    res.json({
+    res.status(CODE.SUCCESS).json({
       // Dynamic message based on quantity change
       message: `Product stock ${
         quantity >= 0 ? 'increased' : 'decreased'
@@ -199,6 +198,36 @@ export const updateProductStock = async (req, res) => {
       data: updatedProduct,
     });
   } catch (error) {
+    const { statusCode, response } = handleMongooseError(error);
+    res.status(statusCode).json(response);
+  }
+};
+
+export const updateCategoryStatus = async (req, res) => {
+  try {
+    // Get product ID from params
+    const { id } = req.params;
+    const { is_active } = req.body;
+    // Soft delete (deactivate) product
+    const updatedProduct = await productService.updateStatus(id, is_active);
+
+    if (!updatedProduct) {
+      // If product not found, return 404
+      return res.status(CODE.NOT_FOUND).json({
+        message: `Product with ID ${id} not found`,
+      });
+    }
+    // Successful response
+    res.status(CODE.SUCCESS).json({
+      message: `Product ${is_active ? 'restored' : 'deactivated'} successfully`,
+      data: {
+        id: updatedProduct._id,
+        name: updatedProduct.name,
+        is_active: updatedProduct.is_active,
+      },
+    });
+  } catch (error) {
+    // Handles ALL error types
     const { statusCode, response } = handleMongooseError(error);
     res.status(statusCode).json(response);
   }
@@ -213,14 +242,13 @@ export const deleteOneProduct = async (req, res) => {
 
     if (!deletedProduct) {
       // If product not found, return 404
-      return res.status(404).json({
+      return res.status(CODE.NOT_FOUND).json({
         message: `Product with ID ${id} not found`,
       });
     }
     // Successful response
-    res.json({
+    res.status(CODE.NO_CONTENT).json({
       message: 'Product deleted successfully',
-      data: { id: deletedProduct._id, name: deletedProduct.name },
     });
   } catch (error) {
     // Handles ALL error types

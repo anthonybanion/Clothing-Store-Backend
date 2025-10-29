@@ -17,16 +17,19 @@ import {
   getProductsByCategory,
   createOneProduct,
   updateOneProduct,
-  updatePartialOneProduct,
+  updateOnePartialProduct,
   updateProductStock,
+  updateCategoryStatus,
   deleteOneProduct,
 } from '../controllers/productController.js';
 // Validations
 import {
   createProductValidation,
   updateProductValidation,
+  updatePartialProductValidation,
   stockUpdateValidation,
   productIdValidation,
+  updateProductStatusValidation,
 } from '../validations/productValidator.js';
 // Middleware to handle validation errors
 import { handleValidationErrors } from '../middlewares/validationMiddleware.js';
@@ -61,9 +64,9 @@ router.put(
 // PATCH update a product partially - Partial validation
 router.patch(
   '/:id',
-  updateProductValidation,
+  updatePartialProductValidation,
   handleValidationErrors,
-  updatePartialOneProduct
+  updateOnePartialProduct
 );
 
 // PATCH update product stock - Quantity validation only
@@ -72,6 +75,14 @@ router.patch(
   stockUpdateValidation,
   handleValidationErrors,
   updateProductStock
+);
+
+// PATCH update product status (soft delete or restore)
+router.patch(
+  '/:id/status',
+  updateProductStatusValidation,
+  handleValidationErrors,
+  updateCategoryStatus
 );
 
 // DELETE a product - ID validation only
