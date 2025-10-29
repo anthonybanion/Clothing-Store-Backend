@@ -8,6 +8,7 @@
 // Last Updated: 2025-10-21
 // ==========================================
 
+import { CODE } from '../config/constants.js';
 /**
  * Generic Mongoose error handler for all models
  * Processes ValidationError, duplicate key, and CastError
@@ -22,7 +23,7 @@ export const handleMongooseError = (error) => {
     }));
 
     return {
-      statusCode: 400,
+      statusCode: CODE.BAD_REQUEST,
       response: {
         message: 'Validation failed',
         errors: errors,
@@ -39,7 +40,7 @@ export const handleMongooseError = (error) => {
     const message = `${field} '${value}' already exists`;
 
     return {
-      statusCode: 409,
+      statusCode: CODE.CONFLICT,
       response: {
         message: 'Duplicate entry',
         error: message,
@@ -52,7 +53,7 @@ export const handleMongooseError = (error) => {
   // Invalid ObjectId format
   if (error.name === 'CastError') {
     return {
-      statusCode: 400,
+      statusCode: CODE.BAD_REQUEST,
       response: {
         message: 'Invalid ID format',
         error: `Invalid ${error.path}: ${error.value}`,
@@ -62,7 +63,7 @@ export const handleMongooseError = (error) => {
 
   // Unexpected errors
   return {
-    statusCode: 500,
+    statusCode: CODE.INTERNAL_ERROR,
     response: {
       message: 'Internal server error',
       error: error.message,

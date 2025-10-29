@@ -7,9 +7,8 @@
 // Created: 2025-10-13
 // Last Updated: 2025-10-27
 // ==========================================
-
-import app from './app.js';
 import env from 'dotenv';
+import app from './app.js';
 import { connectDatabase, validateEnvironment } from './config/exports.js';
 
 // Load environment variables

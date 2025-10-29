@@ -76,12 +76,21 @@ class ProductService {
    * param {string} id - Product ID
    * returns {Promise<Object>} Deleted product
    */
-  async delete(id) {
+  async updateStatus(id, is_active=false) {
     return await Product.findByIdAndUpdate(
       id,
-      { is_active: false },
+      { is_active: is_active },
       { new: true }
     ).exec();
+  }
+
+  /**
+   * Delete a product permanently
+   * param {string} id - Product ID
+   * returns {Promise<Object>} Deleted product
+   */
+  async delete(id) {
+    return await Product.findByIdAndDelete(id).exec();
   }
 
   /**

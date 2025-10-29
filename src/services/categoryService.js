@@ -73,12 +73,21 @@ class CategoryService {
    * param {string} id - Category ID
    * returns {Promise<Object>} Deleted category
    */
-  async delete(id) {
+  async updateStatus(id, is_active = false) {
     return await Category.findByIdAndUpdate(
       id,
-      { is_active: false },
+      { is_active: is_active },
       { new: true }
     ).exec();
+  }
+
+  /**
+   * Hard delete a category from the database
+   * param {string} id - Category ID
+   * returns {Promise<Object>} Deleted category
+   */
+  async delete(id) {
+    return await Category.findByIdAndDelete(id).exec();
   }
 }
 

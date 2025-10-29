@@ -112,6 +112,40 @@ export const updateOnePartialCategory = async (req, res) => {
     res.status(statusCode).json(response);
   }
 };
+
+export const updateCategoryStatus = async (req, res) => {
+  try {
+    // Get category ID from params
+    const { id } = req.params;
+    const { is_active } = req.body;
+    // Update category status
+    const updatedCategory = await categoryService.updateStatus(id, is_active);
+
+    if (!updatedCategory) {
+      // If category not found, return 404
+      return res.status(CODE.BAD_REQUEST).json({
+        message: `Category with ID ${id} no found`,
+      });
+    }
+    // Successful response
+    res.status(CODE.SUCCESS).json({
+      message: `Category ${
+        is_active ? 'restored' : 'deactivated'
+      } successfully`,
+      data: {
+        id: updatedCategory._id,
+        name: updatedCategory.name,
+        is_active: updatedCategory.is_active,
+      },
+    });
+  } catch (error) {
+    // Handles ALL error types
+    const { statusCode, response } = handleMongooseError(error);
+    // Custom response based on error type
+    res.status(statusCode).json(response);
+  }
+};
+
 export const deleteOneCategory = async (req, res) => {
   try {
     // Get category ID
@@ -127,7 +161,6 @@ export const deleteOneCategory = async (req, res) => {
     // Successful response
     res.status(CODE.SUCCESS).json({
       message: 'Category deleted successfully',
-      data: deletedCategory,
     });
   } catch (error) {
     // Handles ALL error types

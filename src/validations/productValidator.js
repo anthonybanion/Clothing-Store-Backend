@@ -187,3 +187,14 @@ export const bulkProductUpdateValidation = [
 
   body('*.stock').optional().isInt({ min: 0 }),
 ];
+
+export const updateProductStatusValidation = [
+  param('id').isMongoId().withMessage('Invalid product ID'),
+  
+  body('is_active')
+    .notEmpty()
+    .withMessage('is_active field is required')
+    .bail()
+    .isBoolean()
+    .withMessage('is_active must be true or false'),
+];

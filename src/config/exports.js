@@ -1,13 +1,22 @@
-// config/configs.js - Exportación centralizada
-// config/configs.js
-export { corsMiddleware, corsErrorHandler } from './cors.js';
-export { dbConfig, connectDatabase } from './database.js';
-export { authConfig } from './auth.js';
+// ==========================================
+//
+// Description: Centralized exports for configuration modules
+//
+// File: exports.js
+// Author: Anthony Bañon
+// Created: 2025-10-28
+// Last Updated: 2025-10-28
+// ==========================================
 
-export { serverConfig } from './serverConfig.js';
-export {
-  validateEnvironment,
-  getEnvironmentConfig,
-  requiredEnvVars,
-} from './environment.js';
+// Cors configuration
+export { corsMiddleware, corsErrorHandler } from './cors.js';
+// Database configuration and connection
+export { dbConfig, connectDatabase } from './database.js';
+// Authentication configuration
+export { authConfig } from './auth.js';
+// Server configuration
+export { getServerConfig } from './serverConfig.js';
+// Environment variable validation and configuration
+export { validateEnvironment } from './environment.js';
+// Export constants
 export { ROLE, CODE, PAGINATION, LIMIT } from './constants.js';
