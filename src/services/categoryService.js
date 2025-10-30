@@ -5,7 +5,8 @@
 // File: categoryService.js
 // Author: Anthony Bañon
 // Created: 2025-10-27
-// Last Updated: 2025-10-27
+// Last Updated: 2025-10-30
+// Changes: Added uniqueness validation for category name
 // ==========================================
 
 import Category from '../models/categoryModel.js';
@@ -128,6 +129,7 @@ class CategoryService {
    */
   async delete(id) {
     const deleteCategory = await Category.findByIdAndDelete(id).exec();
+
     if (!deleteCategory) {
       throw new NotFoundError('Category', id);
     }

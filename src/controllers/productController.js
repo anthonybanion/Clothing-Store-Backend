@@ -1,11 +1,12 @@
 // ==========================================
 //
-// Description: Product controllers using Mongoose and Joi validation.
+// Description: Product controllers handling HTTP requests
 //
 // File: productController.js
 // Author: Anthony Bañon
 // Created: 2025-10-21
-// Last Updated: 2025-10-21
+// Last Updated: 2025-10-30
+// Changes: Added error handling to all controllers
 // ==========================================
 
 import productService from '../services/productService.js';
