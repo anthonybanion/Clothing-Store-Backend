@@ -14,10 +14,14 @@ export const CODE = {
   UNAUTHORIZED: 401, // Not authenticated (token missing)
   FORBIDDEN: 403, // Authenticated but no permissions
   NOT_FOUND: 404, // Resource does not exist
+  METHOD_NOT_ALLOWED: 405, // HTTP method not allowed
   CONFLICT: 409, // Conflict (e.g. duplicate email)
+  UNPROCESSABLE_ENTITY: 422, // Validation failed (semantic errors)
+  TOO_MANY_REQUESTS: 429, // Rate limiting
 
   // Server errors
   INTERNAL_ERROR: 500, // Generic server error
+  SERVICE_UNAVAILABLE: 503, // Maintenance, third-party service down
 };
 
 export const PAGINATION = {

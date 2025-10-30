@@ -15,7 +15,7 @@ import {
   categoryIdValidation,
   updateCategoryStatusValidation,
   updatePartialCategoryValidation,
-} from '../validations/categoryValidator.js';
+} from '../validations/categoryValidation.js';
 
 // Middleware to handle validation errors
 import { handleValidationErrors } from '../middlewares/validationMiddleware.js';

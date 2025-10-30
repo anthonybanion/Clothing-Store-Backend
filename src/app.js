@@ -12,6 +12,7 @@
 import express from 'express';
 import { corsMiddleware, corsErrorHandler } from './config/exports.js';
 import apiRouter from './routes/api.js';
+import { globalErrorHandler } from './middlewares/globalErrorHandler.js';
 
 const app = express();
 
@@ -35,5 +36,8 @@ app.use((req, res, next) => {
 
 // All API routes
 app.use('/api', apiRouter);
+
+// Global Error Handling Middleware
+app.use(globalErrorHandler);
 
 export default app;

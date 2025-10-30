@@ -9,58 +9,77 @@
 // Changes: Added product model with basic validations
 // ==========================================
 
+// ==========================================
+// Description: Product model - DATA LAYER ONLY
+// File: product.model.js
+// ==========================================
+
 import mongoose from 'mongoose';
 
-const personSchema = new mongoose.Schema(
+const productSchema = new mongoose.Schema(
   {
-    // First name
-    first_name: {
-      type: String,
-      required: true,
-      trim: true,
-      comment: 'User first name',
-    },
-
-    // Last name
-    last_name: {
-      type: String,
-      required: true,
-      trim: true,
-      comment: 'User last name',
-    },
-
-    // National ID (optional, unique)
-    dni: {
-      type: String,
-      unique: true,
-      sparse: true,
-      default: null,
-      comment: 'Optional unique national ID',
-    },
-
-    // URL to profile image
-    profile_photo: {
-      type: String,
-      default: null,
-      comment: 'URL for user profile photo',
-    },
-
-    // Email address
-    email: {
+    // Unique stock keeping unit
+    sku: {
       type: String,
       required: true,
       unique: true,
-      lowercase: true,
       trim: true,
-      comment: 'Unique email address',
+      uppercase: true,
+      comment: 'Unique stock keeping unit',
     },
 
-    // Account active status
+    // Product name
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      comment: 'Product name',
+    },
+
+    // URL of product image
+    image: {
+      type: String,
+      default: null,
+      comment: 'URL of product image',
+    },
+
+    // Product description
+    description: {
+      type: String,
+      trim: true,
+      default: null,
+      comment: 'Product description',
+    },
+
+    // Current price
+    price: {
+      type: Number,
+      required: true,
+      comment: "The product's current price",
+    },
+
+    // Available quantity
+    stock: {
+      type: Number,
+      required: true,
+      default: 0,
+      comment: 'Available quantity',
+    },
+
+    // Product active status
     is_active: {
       type: Boolean,
       required: true,
       default: true,
-      comment: 'Account active status',
+      comment: 'Product active status',
+    },
+
+    // Reference to category
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+      required: true,
+      comment: 'Product category reference',
     },
   },
   {
@@ -69,4 +88,4 @@ const personSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model('Person', personSchema);
+export default mongoose.model('Product', productSchema);
