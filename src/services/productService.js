@@ -80,17 +80,18 @@ class ProductService {
   async update(id, data) {
     const { sku } = data;
 
-    // Validación de negocio EN EL SERVICE
+    // Business validation IN THE SERVICE
     if (sku) {
       await this.validateSkuUniqueness(sku, id);
     }
-
+    // Find existing product
     const product = await Product.findById(id);
     if (!product) {
       throw new NotFoundError('Product', id);
     }
-
+    // Update fields
     Object.assign(product, data);
+    // Validates entire schema with save()
     return await product.save();
   }
 
@@ -150,13 +151,13 @@ class ProductService {
    * - throws {NotFoundError} If product not found
    */
   async delete(id) {
-    const deletedProduct = await Product.findByIdAndDelete(id).exec();
+    const deleteProduct = await Product.findByIdAndDelete(id).exec();
 
-    if (!deletedProduct) {
+    if (!deleteProduct) {
       throw new NotFoundError('Product', id);
     }
 
-    return deletedProduct;
+    return deleteProduct;
   }
 
   /**
