@@ -30,7 +30,7 @@ import {
   stockUpdateValidation,
   productIdValidation,
   updateProductStatusValidation,
-} from '../validations/productValidator.js';
+} from '../validations/productValidation.js';
 // Middleware to handle validation errors
 import { handleValidationErrors } from '../middlewares/validationMiddleware.js';
 
