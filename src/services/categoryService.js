@@ -10,12 +10,15 @@
 // ==========================================
 
 import Category from '../models/categoryModel.js';
-import { NotFoundError, DuplicateError } from '../errors/businessError.js';
+import { NotFoundError } from '../errors/businessError.js';
+import {
+  validateUniqueness,
+  validateRequiredFields,
+} from '../utils/validationUtils.js';
 
 class CategoryService {
   /**
    * Get one category by ID
-   *
    * param {string} id - Category ID
    * returns {Promise<Object>} Category document
    * throws {NotFoundError} If category not found
@@ -30,7 +33,6 @@ class CategoryService {
 
   /**
    * Get all active categories
-   *
    * returns {Promise<Array>} List of categories
    */
   async getAll() {
@@ -39,24 +41,25 @@ class CategoryService {
 
   /**
    * Create a new category
-   *
    * param {Object} data - Category data
    * returns {Promise<Object>} Created category
    * throws {DuplicateError} If category name already exists
+   * throws {ValidationError} If required fields are missing
    */
   async create(data) {
-    const { name } = data;
+    // Validate required fields
+    validateRequiredFields(data, ['name'], 'Category');
 
-    if (name) {
-      await this.validateNameUniqueness(name);
-    }
+    // Validate uniqueness of category name
+    await validateUniqueness(Category, 'name', data.name, null, 'Category');
+
+    // Create and save category
     const category = new Category(data);
     return await category.save();
   }
 
   /**
    * Update a category completely
-   *
    * param {string} id - Category ID
    * param {Object} data - Complete category data
    * returns {Promise<Object>} Updated category
@@ -64,26 +67,24 @@ class CategoryService {
    * throws {DuplicateError} If category name already exists
    */
   async update(id, data) {
-    const { name } = data;
-    // Business validation
-    if (name) {
-      await this.validateNameUniqueness(name, id);
+    // Validate uniqueness only if name is being updated
+    if (data.name) {
+      await validateUniqueness(Category, 'name', data.name, id, 'Category');
     }
-    // Find existing category
+    // Find existing category and update
     const category = await Category.findById(id);
     if (!category) {
       throw new NotFoundError('Category', id);
     }
 
-    // Replace all fields with new data
     Object.assign(category, data);
+
     // Validates entire schema with save()
     return await category.save();
   }
 
   /**
    * Partially update a category
-   *
    * param {string} id - Category ID
    * param {Object} updates - Partial category data
    * returns {Promise<Object>} Updated category
@@ -91,36 +92,36 @@ class CategoryService {
    * throws {DuplicateError} If category name already exists
    */
   async updatePartial(id, updates) {
-    const { name } = updates;
-    // Business validation IN THE SERVICE
-    if (name) {
-      await this.validateNameUniqueness(name, id);
+    // Validate uniqueness only if name is being updated
+    if (updates.name) {
+      await validateUniqueness(Category, 'name', updates.name, id, 'Category');
     }
+    // Partial update with validators
     const updatedCategory = await Category.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
     }).exec();
-
+    // Validate existence
     if (!updatedCategory) {
       throw new NotFoundError('Category', id);
     }
-
     return updatedCategory;
   }
 
   /**
-   *  Soft delete a category by setting is_active to false
-   *
+   * Soft delete a category by setting is_active to false
    * param {string} id - Category ID
    * returns {Promise<Object>} Deleted category
+   * throws {NotFoundError} If category not found
    */
   async updateStatus(id, is_active = false) {
+    // Validate category exists and update status
     const updatedCategory = await Category.findByIdAndUpdate(
       id,
-      { is_active: is_active },
+      { is_active },
       { new: true }
     ).exec();
-
+    // Validate existence
     if (!updatedCategory) {
       throw new NotFoundError('Category', id);
     }
@@ -130,36 +131,19 @@ class CategoryService {
 
   /**
    * Hard delete a category from the database
-   *
    * param {string} id - Category ID
    * returns {Promise<Object>} Deleted category
+   * throws {NotFoundError} If category not found
    */
   async delete(id) {
-    const deleteCategory = await Category.findByIdAndDelete(id).exec();
+    // Validate category exists and delete
+    const deletedCategory = await Category.findByIdAndDelete(id).exec();
 
-    if (!deleteCategory) {
+    if (!deletedCategory) {
       throw new NotFoundError('Category', id);
     }
-    return deleteCategory;
-  }
 
-  /**
-   * Validate uniqueness of category name
-   *
-   * param {string} name - Category name
-   * param {string|null} excludeId - ID to exclude from check (for updates)
-   * throws {Error} If a category with the same name exists
-   */
-  async validateNameUniqueness(name, excludeId = null) {
-    const query = { name };
-    if (excludeId) {
-      query._id = { $ne: excludeId };
-    }
-
-    const existing = await Category.findOne(query).exec();
-    if (existing) {
-      throw new DuplicateError('Category', 'name', name);
-    }
+    return deletedCategory;
   }
 }
 

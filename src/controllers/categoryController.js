@@ -115,7 +115,7 @@ export const updateOneCategory = async (req, res, next) => {
  * @returns {Promise<Object>} Updated category document
  * @throws {Error} If an error occurs during partial update
  */
-export const updateOnePartialCategory = async (req, res, next) => {
+export const updatePartialCategory = async (req, res, next) => {
   try {
     // Get category ID and partial updates
     const { id } = req.params;
