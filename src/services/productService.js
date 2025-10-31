@@ -12,10 +12,13 @@
 import Product from '../models/productModel.js';
 import {
   NotFoundError,
-  DuplicateError,
   InsufficientResourceError,
   ValidationError,
 } from '../errors/businessError.js';
+import {
+  validateUniqueness,
+  validateRequiredFields,
+} from '../utils/validationUtils.js';
 
 class ProductService {
   /**
@@ -50,12 +53,14 @@ class ProductService {
    * throws {DuplicateError} If SKU already exists
    */
   async create(data) {
-    const { sku } = data;
-
-    // Validación de negocio EN EL SERVICE
-    if (sku) {
-      await this.validateSkuUniqueness(sku);
-    }
+    // Validate required fields
+    validateRequiredFields(
+      data,
+      ['sku', 'name', 'price', 'category'],
+      'Product'
+    );
+    // Validate uniqueness of SKU
+    await validateUniqueness(Product, 'sku', data.sku, null, 'Product');
 
     const product = new Product(data);
     return await product.save();
@@ -71,11 +76,9 @@ class ProductService {
    * throws {DuplicateError} If SKU already exists
    */
   async update(id, data) {
-    const { sku } = data;
-
     // Business validation IN THE SERVICE
-    if (sku) {
-      await this.validateSkuUniqueness(sku, id);
+    if (data.sku) {
+      await validateUniqueness(Product, 'sku', data.sku, id, 'Product');
     }
     // Find existing product
     const product = await Product.findById(id);
@@ -98,18 +101,16 @@ class ProductService {
    * throws {DuplicateError} If SKU already exists
    */
   async updatePartial(id, updates) {
-    const { sku } = updates;
-
-    // Validación de negocio EN EL SERVICE
-    if (sku) {
-      await this.validateSkuUniqueness(sku, id);
+    // Business validation IN THE SERVICE
+    if (updates.sku) {
+      await validateUniqueness(Product, 'sku', updates.sku, id, 'Product');
     }
-
+    // Partial update with validators
     const updatedProduct = await Product.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
     }).exec();
-
+    // Validate existence
     if (!updatedProduct) {
       throw new NotFoundError('Product', id);
     }
@@ -179,7 +180,9 @@ class ProductService {
    * throws {InsufficientResourceError} If stock would go negative
    */
   async updateStock(id, quantity) {
+    // Validate product exists
     const product = await Product.findById(id);
+    // Validate existence
     if (!product) {
       throw new NotFoundError('Product', id);
     }
@@ -190,7 +193,6 @@ class ProductService {
         value: quantity,
       });
     }
-
     //Do not allow negative stock
     const newStock = product.stock + quantity;
     if (newStock < 0) {
@@ -201,7 +203,7 @@ class ProductService {
         Math.abs(quantity)
       );
     }
-
+    // Update stock atomically
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       { $inc: { stock: quantity } },
@@ -209,25 +211,6 @@ class ProductService {
     ).exec();
 
     return updatedProduct;
-  }
-
-  /**
-   * Validate SKU uniqueness (business logic)
-   *
-   * param {string} sku - SKU to check
-   * param {string} excludeId - Product ID to exclude
-   * throws {DuplicateError} If SKU already exists
-   */
-  async validateSkuUniqueness(sku, excludeId = null) {
-    const query = { sku };
-    if (excludeId) {
-      query._id = { $ne: excludeId };
-    }
-
-    const existing = await Product.findOne(query).exec();
-    if (existing) {
-      throw new DuplicateError('Product', 'SKU', sku);
-    }
   }
 }
 

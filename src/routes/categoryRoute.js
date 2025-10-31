@@ -4,7 +4,7 @@ import {
   getOneCategory,
   createOneCategory,
   updateOneCategory,
-  updateOnePartialCategory,
+  updatePartialCategory,
   updateCategoryStatus,
   deleteOneCategory,
 } from '../controllers/categoryController.js';
@@ -45,7 +45,7 @@ router.patch(
   '/:id',
   updatePartialCategoryValidation,
   handleValidationErrors,
-  updateOnePartialCategory
+  updatePartialCategory
 );
 
 router.patch(
