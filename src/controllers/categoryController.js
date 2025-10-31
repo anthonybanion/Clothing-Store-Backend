@@ -12,6 +12,13 @@
 import categoryService from '../services/categoryService.js';
 import { CODE } from '../config/constants.js';
 
+/*
+ *  Get one category by ID
+ *
+ * @param {string} id - Category ID
+ * @returns {Promise<Object>} Category document
+ * @throws {Error} If an error occurs during retrieval
+ */
 export const getOneCategory = async (req, res, next) => {
   try {
     // Get category by ID
@@ -29,6 +36,12 @@ export const getOneCategory = async (req, res, next) => {
   }
 };
 
+/*
+ * Get all categories
+ *
+ * @returns {Promise<Array>} List of category documents
+ * @throws {Error} If an error occurs during retrieval
+ */
 export const getAllCategories = async (req, res, next) => {
   try {
     // Fetch all categories from service
@@ -44,6 +57,13 @@ export const getAllCategories = async (req, res, next) => {
   }
 };
 
+/*
+ * Create one category
+ *
+ * @param {Object} categoryData - Data for the new category
+ * @returns {Promise<Object>} Category document
+ * @throws {Error} If an error occurs during creation
+ */
 export const createOneCategory = async (req, res, next) => {
   try {
     // Get new category data from body
@@ -60,6 +80,15 @@ export const createOneCategory = async (req, res, next) => {
     next(error);
   }
 };
+
+/*
+ * Update one category
+ *
+ * @param {String} id - Category ID
+ * @param {Object} categoryData - Updated category data
+ * @returns {Promise<Object>} Updated category document
+ * @throws {Error} If an error occurs during update
+ */
 export const updateOneCategory = async (req, res, next) => {
   try {
     // Get category ID and updated data
@@ -77,6 +106,15 @@ export const updateOneCategory = async (req, res, next) => {
     next(error);
   }
 };
+
+/*
+ * Update one partial category
+ *
+ * @param {String} id - Category ID
+ * @param {Object} updates - Partial category data
+ * @returns {Promise<Object>} Updated category document
+ * @throws {Error} If an error occurs during partial update
+ */
 export const updateOnePartialCategory = async (req, res, next) => {
   try {
     // Get category ID and partial updates
@@ -94,6 +132,15 @@ export const updateOnePartialCategory = async (req, res, next) => {
     next(error);
   }
 };
+
+/*
+ * Update category status
+ *
+ * @param {String} id - Category ID
+ * @param {boolean} is_active - Status
+ * @returns {Promise<Object>} Updated category document
+ * @throws {Error} If an error occurs during status update
+ */
 
 export const updateCategoryStatus = async (req, res, next) => {
   try {
@@ -119,12 +166,20 @@ export const updateCategoryStatus = async (req, res, next) => {
   }
 };
 
+/*
+ * Delete one category
+ *
+ * @param {String} id - Category ID
+ * @returns {Promise<Object>} Deleted category document
+ * @throws {Error} If an error occurs during deletion
+ */
+
 export const deleteOneCategory = async (req, res, next) => {
   try {
-    // Get category ID
+    // Get category ID from params
     const { id } = req.params;
     // Delete category via service
-    const deletedCategory = await categoryService.delete(id);
+    await categoryService.delete(id);
     // Successful response
     res.status(CODE.SUCCESS).json({
       message: 'Category deleted successfully',

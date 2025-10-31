@@ -52,10 +52,10 @@ export class DuplicateError extends baseError {
 /**
  * Validation Error
  * When data does not meet validation rules
- * Usage: new ValidationError('Product', 'Price must be positive')
- *        new ValidationError('User', 'Email format is invalid')
- *        new ValidationError('User', 'Password must be at least 8 characters');
- *        new ValidationError('Order', 'Shipping address is required');
+ * Usage: new ValidationError('Product', 'Price must be positive', { field: 'price', value: -5, min: 0 })
+ *        new ValidationError('User', 'Email format is invalid', { field: 'email', value: 'invalid-email', pattern: 'email' })
+ *        new ValidationError('User', 'Password must be at least 8 characters', { field: 'password', length: 5, minLength: 8 });
+ *        new ValidationError('Order', 'Shipping address is required', { field: 'shipping_address', reason: 'missing_required_field' });
  */
 export class ValidationError extends baseError {
   constructor(entity, message, details = null) {
