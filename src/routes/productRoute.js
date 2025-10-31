@@ -19,7 +19,7 @@ import {
   updateOneProduct,
   updateOnePartialProduct,
   updateProductStock,
-  updateCategoryStatus,
+  updateProductStatus,
   deleteOneProduct,
 } from '../controllers/productController.js';
 // Validations
@@ -82,7 +82,7 @@ router.patch(
   '/:id/status',
   updateProductStatusValidation,
   handleValidationErrors,
-  updateCategoryStatus
+  updateProductStatus
 );
 
 // DELETE a product - ID validation only

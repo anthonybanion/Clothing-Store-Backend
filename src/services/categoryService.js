@@ -65,7 +65,7 @@ class CategoryService {
    */
   async update(id, data) {
     const { name } = data;
-    // Business validation
+    // Business validation IN THE SERVICE
     if (name) {
       await this.validateNameUniqueness(name, id);
     }
