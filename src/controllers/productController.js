@@ -1,29 +1,48 @@
 // ==========================================
 //
-// Description: Product controllers using Mongoose and Joi validation.
+// Description: Product controllers handling HTTP requests
 //
 // File: productController.js
 // Author: Anthony Bañon
 // Created: 2025-10-21
-// Last Updated: 2025-10-21
+// Last Updated: 2025-10-30
+// Changes: Added error handling to all controllers
 // ==========================================
 
 import productService from '../services/productService.js';
 import { CODE } from '../config/constants.js';
 
+/*
+ * Get one product by ID
+
+ * @param {string} id - Product ID
+ * @returns {Promise<Object>} Product document
+ * @throws {Error} If an error occurs during retrieval
+ */
+
 export const getOneProduct = async (req, res, next) => {
   try {
+    // Get one product by ID
     const { id } = req.params;
+    // Fetch product from service
     const product = await productService.getOne(id);
-
+    // Successful response
     res.status(CODE.SUCCESS).json({
       message: 'Product retrieved successfully',
       data: product,
     });
   } catch (error) {
+    // Pass error to global error handler
     next(error);
   }
 };
+
+/*
+ * Get all products
+ *
+ * @returns {Promise<Array>} List of products
+ * @throws {Error} If an error occurs during retrieval
+ */
 
 export const getAllProducts = async (req, res, next) => {
   try {
@@ -37,6 +56,14 @@ export const getAllProducts = async (req, res, next) => {
     next(error);
   }
 };
+
+/*
+ * Get products by category ID
+ *
+ * @param {string} categoryId - Category ID
+ * @returns {Promise<Array>} List of products
+ * @throws {Error} If an error occurs during retrieval
+ */
 
 export const getProductsByCategory = async (req, res, next) => {
   try {
@@ -52,6 +79,14 @@ export const getProductsByCategory = async (req, res, next) => {
   }
 };
 
+/*
+ * Create one product
+ *
+ * @param {Object} productData - Data for the new product
+ * @returns {Promise<Object>} Created product
+ * @throws {Error} If an error occurs during creation
+ */
+
 export const createOneProduct = async (req, res, next) => {
   try {
     const newProduct = await productService.create(req.body);
@@ -65,12 +100,21 @@ export const createOneProduct = async (req, res, next) => {
   }
 };
 
+/*
+ * Update one product
+ *
+ * @param {String} id - Product ID
+ * @param {Object} productData - Updated product data
+ * @returns {Promise<Object>} Updated product document
+ * @throws {Error} If an error occurs during update
+ */
+
 export const updateOneProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const data = req.body;
+    const productData = req.body;
 
-    const updatedProduct = await productService.update(id, data);
+    const updatedProduct = await productService.update(id, productData);
 
     res.status(CODE.SUCCESS).json({
       message: 'Product updated successfully',
@@ -80,6 +124,15 @@ export const updateOneProduct = async (req, res, next) => {
     next(error);
   }
 };
+
+/*
+ * Update one partial product
+ *
+ * @param {String} id - Product ID
+ * @param {Object} updates - Partial product data
+ * @returns {Promise<Object>} Updated product document
+ * @throws {Error} If an error occurs during partial update
+ */
 
 export const updateOnePartialProduct = async (req, res, next) => {
   try {
@@ -97,17 +150,18 @@ export const updateOnePartialProduct = async (req, res, next) => {
   }
 };
 
+/*
+ * Update product stock
+ *
+ * @param {String} id - Product ID
+ * @param {number} quantity - Quantity to adjust stock by
+ * @returns {Promise<Object>} Updated product document
+ * @throws {Error} If an error occurs during stock update
+ */
 export const updateProductStock = async (req, res, next) => {
   try {
     const { id } = req.params;
     let { quantity } = req.body;
-
-    // Validación de formato (sí pertenece al controller)
-    if (typeof quantity !== 'number') {
-      return res.status(CODE.BAD_REQUEST).json({
-        message: 'Quantity must be a number',
-      });
-    }
 
     const updatedProduct = await productService.updateStock(id, quantity);
 
@@ -122,7 +176,16 @@ export const updateProductStock = async (req, res, next) => {
   }
 };
 
-export const updateCategoryStatus = async (req, res, next) => {
+/*
+ * Update product status
+ *
+ * @param {String} id - Product ID
+ * @param {boolean} is_active - Status
+ * @returns {Promise<Object>} Updated product document
+ * @throws {Error} If an error occurs during status update
+ */
+
+export const updateProductStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { is_active } = req.body;
@@ -141,6 +204,14 @@ export const updateCategoryStatus = async (req, res, next) => {
     next(error);
   }
 };
+
+/*
+ * Delete one product
+ *
+ * @param {String} id - Product ID
+ * @returns {Promise<Object>} Deleted product document
+ * @throws {Error} If an error occurs during deletion
+ */
 
 export const deleteOneProduct = async (req, res, next) => {
   try {

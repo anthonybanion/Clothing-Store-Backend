@@ -1,33 +1,48 @@
+// ==========================================
+//
+// Description: Category controller handling HTTP requests
+//
+// File: categoryController.js
+// Author: Anthony Bañon
+// Created: 2025-10-21
+// Last Updated: 2025-10-30
+// Changes: Added error handling to all controllers
+// ==========================================
+
 import categoryService from '../services/categoryService.js';
-import { handleMongooseError } from '../utils/mongooseErrorHandler.js';
 import { CODE } from '../config/constants.js';
 
-export const getOneCategory = async (req, res) => {
+/*
+ *  Get one category by ID
+ *
+ * @param {string} id - Category ID
+ * @returns {Promise<Object>} Category document
+ * @throws {Error} If an error occurs during retrieval
+ */
+export const getOneCategory = async (req, res, next) => {
   try {
     // Get category by ID
     const { id } = req.params;
     // Fetch category from service
     const category = await categoryService.getOne(id);
-    // If not found, return 404
-    if (!category) {
-      return res.status(CODE.BAD_REQUEST).json({
-        message: `Category with ID ${id} no found`,
-      });
-    }
     // Successful response
     res.status(CODE.SUCCESS).json({
       message: `Category retrieved successfully`,
       data: category,
     });
   } catch (error) {
-    // Handles ALL error types
-    const { statusCode, response } = handleMongooseError(error);
-    // Custom response based on error type
-    res.status(statusCode).json(response);
+    // Pass error to global error handler
+    next(error);
   }
 };
 
-export const getAllCategories = async (req, res) => {
+/*
+ * Get all categories
+ *
+ * @returns {Promise<Array>} List of category documents
+ * @throws {Error} If an error occurs during retrieval
+ */
+export const getAllCategories = async (req, res, next) => {
   try {
     // Fetch all categories from service
     const categories = await categoryService.getAll();
@@ -37,14 +52,19 @@ export const getAllCategories = async (req, res) => {
       data: categories,
     });
   } catch (error) {
-    // Handles ALL error types
-    const { statusCode, response } = handleMongooseError(error);
-    // Custom response based on error type
-    res.status(statusCode).json(response);
+    // Pass error to global error handler
+    next(error);
   }
 };
 
-export const createOneCategory = async (req, res) => {
+/*
+ * Create one category
+ *
+ * @param {Object} categoryData - Data for the new category
+ * @returns {Promise<Object>} Category document
+ * @throws {Error} If an error occurs during creation
+ */
+export const createOneCategory = async (req, res, next) => {
   try {
     // Get new category data from body
     const categoryData = req.body;
@@ -56,77 +76,79 @@ export const createOneCategory = async (req, res) => {
       data: newCategory,
     });
   } catch (error) {
-    // Handles ALL error types
-    const { statusCode, response } = handleMongooseError(error);
-    // Custom response based on error type
-    res.status(statusCode).json(response);
+    // Pass error to global error handler
+    next(error);
   }
 };
-export const updateOneCategory = async (req, res) => {
+
+/*
+ * Update one category
+ *
+ * @param {String} id - Category ID
+ * @param {Object} categoryData - Updated category data
+ * @returns {Promise<Object>} Updated category document
+ * @throws {Error} If an error occurs during update
+ */
+export const updateOneCategory = async (req, res, next) => {
   try {
     // Get category ID and updated data
     const { id } = req.params;
     const categoryData = req.body;
     // Update category via service
     const updatedCategory = await categoryService.update(id, categoryData);
-    // If not found, return 404
-    if (!updatedCategory) {
-      return res.status(CODE.BAD_REQUEST).json({
-        message: `Category with ID ${id} no found`,
-      });
-    }
     // Successful response
     res.status(CODE.SUCCESS).json({
       message: 'Category updated successfully',
       data: updatedCategory,
     });
   } catch (error) {
-    // Handles ALL error types
-    const { statusCode, response } = handleMongooseError(error);
-    // Custom response based on error type
-    res.status(statusCode).json(response);
+    // Pass error to global error handler
+    next(error);
   }
 };
-export const updateOnePartialCategory = async (req, res) => {
+
+/*
+ * Update one partial category
+ *
+ * @param {String} id - Category ID
+ * @param {Object} updates - Partial category data
+ * @returns {Promise<Object>} Updated category document
+ * @throws {Error} If an error occurs during partial update
+ */
+export const updateOnePartialCategory = async (req, res, next) => {
   try {
     // Get category ID and partial updates
     const { id } = req.params;
     const updates = req.body;
     // Partially update category via service
     const updatedCategory = await categoryService.updatePartial(id, updates);
-    // If not found, return 404
-    if (!updatedCategory) {
-      return res.status(CODE.BAD_REQUEST).json({
-        message: `Category with ID ${id} no found`,
-      });
-    }
     // Successful response
     res.status(CODE.SUCCESS).json({
       message: 'Category partially updated successfully',
       data: updatedCategory,
     });
   } catch (error) {
-    // Handles ALL error types
-    const { statusCode, response } = handleMongooseError(error);
-    // Custom response based on error type
-    res.status(statusCode).json(response);
+    // Pass error to global error handler
+    next(error);
   }
 };
 
-export const updateCategoryStatus = async (req, res) => {
+/*
+ * Update category status
+ *
+ * @param {String} id - Category ID
+ * @param {boolean} is_active - Status
+ * @returns {Promise<Object>} Updated category document
+ * @throws {Error} If an error occurs during status update
+ */
+
+export const updateCategoryStatus = async (req, res, next) => {
   try {
     // Get category ID from params
     const { id } = req.params;
     const { is_active } = req.body;
     // Update category status
     const updatedCategory = await categoryService.updateStatus(id, is_active);
-
-    if (!updatedCategory) {
-      // If category not found, return 404
-      return res.status(CODE.BAD_REQUEST).json({
-        message: `Category with ID ${id} no found`,
-      });
-    }
     // Successful response
     res.status(CODE.SUCCESS).json({
       message: `Category ${
@@ -139,33 +161,31 @@ export const updateCategoryStatus = async (req, res) => {
       },
     });
   } catch (error) {
-    // Handles ALL error types
-    const { statusCode, response } = handleMongooseError(error);
-    // Custom response based on error type
-    res.status(statusCode).json(response);
+    // Pass error to global error handler
+    next(error);
   }
 };
 
-export const deleteOneCategory = async (req, res) => {
+/*
+ * Delete one category
+ *
+ * @param {String} id - Category ID
+ * @returns {Promise<Object>} Deleted category document
+ * @throws {Error} If an error occurs during deletion
+ */
+
+export const deleteOneCategory = async (req, res, next) => {
   try {
-    // Get category ID
+    // Get category ID from params
     const { id } = req.params;
     // Delete category via service
-    const deletedCategory = await categoryService.delete(id);
-    // If not found, return 404
-    if (!deletedCategory) {
-      return res.status(CODE.BAD_REQUEST).json({
-        message: `Category with ID ${id} no found`,
-      });
-    }
+    await categoryService.delete(id);
     // Successful response
     res.status(CODE.SUCCESS).json({
       message: 'Category deleted successfully',
     });
   } catch (error) {
-    // Handles ALL error types
-    const { statusCode, response } = handleMongooseError(error);
-    // Custom response based on error type
-    res.status(statusCode).json(response);
+    // Pass error to global error handler
+    next(error);
   }
 };

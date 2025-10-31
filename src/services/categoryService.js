@@ -5,7 +5,8 @@
 // File: categoryService.js
 // Author: Anthony Bañon
 // Created: 2025-10-27
-// Last Updated: 2025-10-27
+// Last Updated: 2025-10-30
+// Changes: Add JSDoc annotations for methods
 // ==========================================
 
 import Category from '../models/categoryModel.js';
@@ -14,6 +15,7 @@ import { NotFoundError, DuplicateError } from '../errors/businessError.js';
 class CategoryService {
   /**
    * Get one category by ID
+   *
    * param {string} id - Category ID
    * returns {Promise<Object>} Category document
    * throws {NotFoundError} If category not found
@@ -28,6 +30,7 @@ class CategoryService {
 
   /**
    * Get all active categories
+   *
    * returns {Promise<Array>} List of categories
    */
   async getAll() {
@@ -36,6 +39,7 @@ class CategoryService {
 
   /**
    * Create a new category
+   *
    * param {Object} data - Category data
    * returns {Promise<Object>} Created category
    * throws {DuplicateError} If category name already exists
@@ -52,6 +56,7 @@ class CategoryService {
 
   /**
    * Update a category completely
+   *
    * param {string} id - Category ID
    * param {Object} data - Complete category data
    * returns {Promise<Object>} Updated category
@@ -60,7 +65,7 @@ class CategoryService {
    */
   async update(id, data) {
     const { name } = data;
-    // Business validation IN THE SERVICE
+    // Business validation
     if (name) {
       await this.validateNameUniqueness(name, id);
     }
@@ -78,6 +83,7 @@ class CategoryService {
 
   /**
    * Partially update a category
+   *
    * param {string} id - Category ID
    * param {Object} updates - Partial category data
    * returns {Promise<Object>} Updated category
@@ -104,6 +110,7 @@ class CategoryService {
 
   /**
    *  Soft delete a category by setting is_active to false
+   *
    * param {string} id - Category ID
    * returns {Promise<Object>} Deleted category
    */
@@ -123,11 +130,13 @@ class CategoryService {
 
   /**
    * Hard delete a category from the database
+   *
    * param {string} id - Category ID
    * returns {Promise<Object>} Deleted category
    */
   async delete(id) {
     const deleteCategory = await Category.findByIdAndDelete(id).exec();
+
     if (!deleteCategory) {
       throw new NotFoundError('Category', id);
     }
@@ -136,6 +145,7 @@ class CategoryService {
 
   /**
    * Validate uniqueness of category name
+   *
    * param {string} name - Category name
    * param {string|null} excludeId - ID to exclude from check (for updates)
    * throws {Error} If a category with the same name exists
