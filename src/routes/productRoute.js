@@ -17,9 +17,9 @@ import {
   getProductsByCategory,
   createOneProduct,
   updateOneProduct,
-  updateOnePartialProduct,
+  updatePartialProduct,
   updateProductStock,
-  updateCategoryStatus,
+  updateProductStatus,
   deleteOneProduct,
 } from '../controllers/productController.js';
 // Validations
@@ -66,7 +66,7 @@ router.patch(
   '/:id',
   updatePartialProductValidation,
   handleValidationErrors,
-  updateOnePartialProduct
+  updatePartialProduct
 );
 
 // PATCH update product stock - Quantity validation only
@@ -82,7 +82,7 @@ router.patch(
   '/:id/status',
   updateProductStatusValidation,
   handleValidationErrors,
-  updateCategoryStatus
+  updateProductStatus
 );
 
 // DELETE a product - ID validation only

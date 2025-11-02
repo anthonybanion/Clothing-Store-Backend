@@ -134,7 +134,7 @@ export const updateOneProduct = async (req, res, next) => {
  * @throws {Error} If an error occurs during partial update
  */
 
-export const updateOnePartialProduct = async (req, res, next) => {
+export const updatePartialProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updates = req.body;
