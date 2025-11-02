@@ -89,7 +89,12 @@ export const getProductsByCategory = async (req, res, next) => {
 
 export const createOneProduct = async (req, res, next) => {
   try {
-    const newProduct = await productService.create(req.body);
+    const productData = {
+      ...req.body,
+      image: req.file ? req.file.buffer : null, // Compressed image
+    };
+
+    const newProduct = await productService.create(productData);
 
     res.status(CODE.CREATED).json({
       message: 'Product created successfully',
@@ -112,7 +117,10 @@ export const createOneProduct = async (req, res, next) => {
 export const updateOneProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const productData = req.body;
+    const productData = {
+      ...req.body,
+      image: req.file ? req.file.buffer : null, // Compressed image
+    };
 
     const updatedProduct = await productService.update(id, productData);
 
@@ -137,7 +145,10 @@ export const updateOneProduct = async (req, res, next) => {
 export const updatePartialProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const updates = {
+      ...req.body,
+      image: req.file ? req.file.buffer : null, // Compressed image
+    };
 
     const updatedProduct = await productService.updatePartial(id, updates);
 
