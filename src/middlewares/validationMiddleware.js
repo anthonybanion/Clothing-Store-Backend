@@ -10,6 +10,7 @@
 
 // middlewares/validationMiddleware.js
 import { validationResult } from 'express-validator';
+import { CODE } from '../config/constants.js';
 
 /**
  * Middleware to handle validation errors from express-validator
@@ -18,7 +19,7 @@ export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({
+    return res.status(CODE.BAD_REQUEST).json({
       message: 'Validation failed',
       errors: errors.array().map((error) => ({
         field: error.path,

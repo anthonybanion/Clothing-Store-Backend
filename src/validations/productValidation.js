@@ -1,7 +1,14 @@
 // ==========================================
-// Description: Product validation rules - SINGLE SOURCE OF TRUTH
-// File: productValidator.js
+// 
+// Description: Product validation rules
+//
+// File: productValidation.js
+// Author: Anthony Bañon
+// Created: 2025-11-02
+// Last Updated: 2025-11-02
 // ==========================================
+
+
 
 import { body, param } from 'express-validator';
 
@@ -31,14 +38,6 @@ const nameValidation = () =>
     .matches(NAME_REGEX)
     .withMessage('Product name contains invalid characters')
     .trim();
-
-const imageValidation = () =>
-  body('image')
-    .optional()
-    .isURL()
-    .withMessage('Image must be a valid URL')
-    .matches(IMAGE_URL_REGEX)
-    .withMessage('Image must be HTTPS URL');
 
 const descriptionValidation = () =>
   body('description')
@@ -102,7 +101,6 @@ const optionalCategoryValidation = () =>
 export const createProductValidation = [
   skuValidation(),
   nameValidation(),
-  imageValidation(),
   descriptionValidation(),
   priceValidation(),
   stockValidation(),
@@ -116,7 +114,6 @@ export const updateProductValidation = [
   // Complete update - all fields required
   skuValidation(),
   nameValidation(),
-  imageValidation(),
   descriptionValidation(),
   priceValidation(),
   stockValidation(),
@@ -130,7 +127,6 @@ export const updatePartialProductValidation = [
   // Partial update - all fields optional but with same validation rules
   optionalSkuValidation(),
   optionalNameValidation(),
-  imageValidation(), // Already optional
   descriptionValidation(), // Already optional
   optionalPriceValidation(),
   stockValidation(), // Already optional via .optional() in the chain
