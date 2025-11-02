@@ -19,6 +19,7 @@ import {
   validateUniqueness,
   validateRequiredFields,
 } from '../utils/validationUtils.js';
+import { saveImageAndGetUrl } from '../utils/imageUtils.js';
 
 class ProductService {
   /**
@@ -62,6 +63,16 @@ class ProductService {
     // Validate uniqueness of SKU
     await validateUniqueness(Product, 'sku', data.sku, null, 'Product');
 
+    // If there is an image, save it and get URL
+    if (data.image) {
+      const imageUrl = await saveImageAndGetUrl(
+        data.image,
+        'products',
+        'product'
+      );
+      data.image = imageUrl; // Replace buffer with URL
+    }
+
     const product = new Product(data);
     return await product.save();
   }
@@ -85,6 +96,16 @@ class ProductService {
     if (!product) {
       throw new NotFoundError('Product', id);
     }
+
+    // If there is an image, save it and get URL
+    if (data.image) {
+      const imageUrl = await saveImageAndGetUrl(
+        data.image,
+        'products',
+        'product'
+      );
+      data.image = imageUrl; // Replace buffer with URL
+    }
     // Update fields
     Object.assign(product, data);
     // Validates entire schema with save()
@@ -104,6 +125,16 @@ class ProductService {
     // Business validation IN THE SERVICE
     if (updates.sku) {
       await validateUniqueness(Product, 'sku', updates.sku, id, 'Product');
+    }
+
+    // If there is an image, save it and get URL
+    if (updates.image) {
+      const imageUrl = await saveImageAndGetUrl(
+        updates.image,
+        'products',
+        'product'
+      );
+      updates.image = imageUrl; // Replace buffer with URL
     }
     // Partial update with validators
     const updatedProduct = await Product.findByIdAndUpdate(id, updates, {

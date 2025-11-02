@@ -1,7 +1,7 @@
 import multer from 'multer';
 import sharp from 'sharp';
 import path from 'path';
-import { LIMIT } from '../config/constants';
+import { LIMIT } from '../config/constants.js';
 
 // Multer in memory (does not save temporary file)
 const storage = multer.memoryStorage();
@@ -15,7 +15,7 @@ const upload = multer({
       cb(new Error('Only image files are allowed'), false);
     }
   },
-  limits: { fileSize: LIMIT.IMAGE_SIZE }, // 5MB
+  limits: { fileSize: LIMIT.PROFILE_IMAGE }, // 5MB
 });
 
 //Generic middleware that compresses the image

@@ -33,6 +33,7 @@ import {
 } from '../validations/productValidation.js';
 // Middleware to handle validation errors
 import { handleValidationErrors } from '../middlewares/validationMiddleware.js';
+import { uploadImage } from '../middlewares/uploadMiddleware.js';
 
 const router = Router();
 
@@ -48,6 +49,7 @@ router.get('/:id', productIdValidation, handleValidationErrors, getOneProduct);
 // POST a new product - Full validation required
 router.post(
   '/',
+  uploadImage,
   createProductValidation,
   handleValidationErrors,
   createOneProduct
@@ -56,6 +58,7 @@ router.post(
 // PUT update a product completely - Full validation
 router.put(
   '/:id',
+  uploadImage,
   updateProductValidation,
   handleValidationErrors,
   updateOneProduct
@@ -64,6 +67,7 @@ router.put(
 // PATCH update a product partially - Partial validation
 router.patch(
   '/:id',
+  uploadImage,
   updatePartialProductValidation,
   handleValidationErrors,
   updatePartialProduct
