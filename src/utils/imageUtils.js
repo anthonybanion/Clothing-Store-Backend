@@ -1,3 +1,13 @@
+// ==========================================
+//
+// Description: Image utility functions
+//
+// File: imageUtils.js
+// Author: Anthony Bañon
+// Created: 2025-11-02
+// Last Updated: 2025-11-02
+// ==========================================
+
 import sharp from 'sharp';
 import fs from 'fs/promises';
 import path from 'path';

@@ -20,14 +20,6 @@ const nameValidation = () =>
     .withMessage('Category name contains invalid characters')
     .trim();
 
-const imageValidation = () =>
-  body('image')
-    .optional()
-    .isURL()
-    .withMessage('Image must be a valid URL')
-    .matches(IMAGE_URL_REGEX)
-    .withMessage('Image must be HTTPS URL');
-
 const descriptionValidation = () =>
   body('description')
     .optional()
@@ -51,16 +43,6 @@ const optionalNameValidation = () =>
     .withMessage('Category name contains invalid characters')
     .trim();
 
-// Required versions for complete updates
-const requiredImageValidation = () =>
-  body('image')
-    .notEmpty()
-    .withMessage('Image is required for complete update')
-    .isURL()
-    .withMessage('Image must be a valid URL')
-    .matches(IMAGE_URL_REGEX)
-    .withMessage('Image must be HTTPS URL');
-
 const requiredDescriptionValidation = () =>
   body('description')
     .notEmpty()
@@ -79,7 +61,6 @@ const requiredIsActiveValidation = () =>
 // Main validation exports
 export const createCategoryValidation = [
   nameValidation(),
-  imageValidation(),
   descriptionValidation(),
   isActiveValidation(),
 ];
@@ -87,7 +68,6 @@ export const createCategoryValidation = [
 export const updateCategoryValidation = [
   param('id').isMongoId().withMessage('Invalid category ID'),
   nameValidation(),
-  requiredImageValidation(),
   requiredDescriptionValidation(),
   requiredIsActiveValidation(),
 ];
@@ -95,7 +75,6 @@ export const updateCategoryValidation = [
 export const updatePartialCategoryValidation = [
   param('id').isMongoId().withMessage('Invalid category ID'),
   optionalNameValidation(),
-  imageValidation(),
   descriptionValidation(),
   isActiveValidation(),
   body().custom((value, { req }) => {

@@ -5,8 +5,8 @@
 // File: productRouter.js
 // Author: Anthony Bañon
 // Created: 2025-10-14
-// Last Updated: 2025-10-26
-// Changes: Added express-validator middleware and new routes
+// Last Updated: 2025-11-02
+// Changes: Added middleware for image upload
 // ==========================================
 
 import { Router } from 'express';
@@ -33,6 +33,7 @@ import {
 } from '../validations/productValidation.js';
 // Middleware to handle validation errors
 import { handleValidationErrors } from '../middlewares/validationMiddleware.js';
+// Middleware for image upload
 import { uploadImage } from '../middlewares/uploadMiddleware.js';
 
 const router = Router();

@@ -15,6 +15,7 @@ import {
   validateUniqueness,
   validateRequiredFields,
 } from '../utils/validationUtils.js';
+import { saveImageAndGetUrl } from '../utils/imageUtils.js';
 
 class CategoryService {
   /**
@@ -53,6 +54,16 @@ class CategoryService {
     // Validate uniqueness of category name
     await validateUniqueness(Category, 'name', data.name, null, 'Category');
 
+    // If there is an image, save it and get URL
+    if (data.image) {
+      const imageUrl = await saveImageAndGetUrl(
+        data.image,
+        'products',
+        'product'
+      );
+      data.image = imageUrl; // Replace buffer with URL
+    }
+
     // Create and save category
     const category = new Category(data);
     return await category.save();
@@ -77,6 +88,16 @@ class CategoryService {
       throw new NotFoundError('Category', id);
     }
 
+    // If there is an image, save it and get URL
+    if (data.image) {
+      const imageUrl = await saveImageAndGetUrl(
+        data.image,
+        'products',
+        'product'
+      );
+      data.image = imageUrl; // Replace buffer with URL
+    }
+
     Object.assign(category, data);
 
     // Validates entire schema with save()
@@ -96,6 +117,17 @@ class CategoryService {
     if (updates.name) {
       await validateUniqueness(Category, 'name', updates.name, id, 'Category');
     }
+
+    // If there is an image, save it and get URL
+    if (data.image) {
+      const imageUrl = await saveImageAndGetUrl(
+        data.image,
+        'products',
+        'product'
+      );
+      data.image = imageUrl; // Replace buffer with URL
+    }
+
     // Partial update with validators
     const updatedCategory = await Category.findByIdAndUpdate(id, updates, {
       new: true,

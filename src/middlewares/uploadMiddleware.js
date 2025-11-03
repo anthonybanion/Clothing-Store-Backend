@@ -1,3 +1,13 @@
+// ==========================================
+//
+// Upload image middleware
+//
+// File: uploadMiddleware.js
+// Author: Anthony Bañon
+// Created: 2025-11-02
+// Last Updated: 2025-11-02
+// ==========================================
+
 import multer from 'multer';
 import sharp from 'sharp';
 import path from 'path';

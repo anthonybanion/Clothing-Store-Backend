@@ -66,8 +66,11 @@ export const getAllCategories = async (req, res, next) => {
  */
 export const createOneCategory = async (req, res, next) => {
   try {
-    // Get new category data from body
-    const categoryData = req.body;
+    // Get new category data from body and file
+    const categoryData = {
+      ...req.body,
+      image: req.file ? req.file.buffer : null, // Compressed image
+    };
     // Create new category via service
     const newCategory = await categoryService.create(categoryData);
     // Successful response
@@ -93,7 +96,10 @@ export const updateOneCategory = async (req, res, next) => {
   try {
     // Get category ID and updated data
     const { id } = req.params;
-    const categoryData = req.body;
+    const categoryData = {
+      ...req.body,
+      image: req.file ? req.file.buffer : null, // Compressed image
+    };
     // Update category via service
     const updatedCategory = await categoryService.update(id, categoryData);
     // Successful response
@@ -119,7 +125,10 @@ export const updatePartialCategory = async (req, res, next) => {
   try {
     // Get category ID and partial updates
     const { id } = req.params;
-    const updates = req.body;
+    const updates = {
+      ...req.body,
+      image: req.file ? req.file.buffer : null, // Compressed image
+    };
     // Partially update category via service
     const updatedCategory = await categoryService.updatePartial(id, updates);
     // Successful response
