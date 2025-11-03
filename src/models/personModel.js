@@ -39,10 +39,14 @@ const personSchema = new mongoose.Schema(
     },
 
     // URL to profile image
-    profile_photo: {
-      type: String,
+    image: {
+      type: {
+        desktop: String,
+        mobile: String,
+        thumbnail: String,
+      },
       default: null,
-      comment: 'URL for user profile photo',
+      comment: 'Person image URLs for different sizes',
     },
 
     // Email address

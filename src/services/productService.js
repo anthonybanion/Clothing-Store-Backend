@@ -19,7 +19,7 @@ import {
   validateUniqueness,
   validateRequiredFields,
 } from '../utils/validationUtils.js';
-import { saveImageAndGetUrl } from '../utils/imageUtils.js';
+import { saveImageAndGetUrl, deleteImageFiles } from '../utils/imageUtils.js';
 
 class ProductService {
   /**
@@ -65,12 +65,12 @@ class ProductService {
 
     // If there is an image, save it and get URL
     if (data.image) {
-      const imageUrl = await saveImageAndGetUrl(
+      const imageUrls = await saveImageAndGetUrl(
         data.image,
         'products',
         'product'
       );
-      data.image = imageUrl; // Replace buffer with URL
+      data.image = imageUrls; // Replace buffer with URL
     }
 
     const product = new Product(data);
@@ -99,12 +99,12 @@ class ProductService {
 
     // If there is an image, save it and get URL
     if (data.image) {
-      const imageUrl = await saveImageAndGetUrl(
+      const imageUrls = await saveImageAndGetUrl(
         data.image,
         'products',
         'product'
       );
-      data.image = imageUrl; // Replace buffer with URL
+      data.image = imageUrls; // Replace buffer with URL
     }
     // Update fields
     Object.assign(product, data);
@@ -129,12 +129,12 @@ class ProductService {
 
     // If there is an image, save it and get URL
     if (updates.image) {
-      const imageUrl = await saveImageAndGetUrl(
+      const imageUrls = await saveImageAndGetUrl(
         updates.image,
         'products',
         'product'
       );
-      updates.image = imageUrl; // Replace buffer with URL
+      updates.image = imageUrls; // Replace buffer with URL
     }
     // Partial update with validators
     const updatedProduct = await Product.findByIdAndUpdate(id, updates, {
@@ -180,10 +180,13 @@ class ProductService {
    */
   async delete(id) {
     const deleteProduct = await Product.findByIdAndDelete(id).exec();
-
+    // Validate existence
     if (!deleteProduct) {
       throw new NotFoundError('Product', id);
     }
+
+    // Delete images
+    await deleteImageFiles(deleteProduct.image, 'products');
 
     return deleteProduct;
   }

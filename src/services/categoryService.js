@@ -15,7 +15,7 @@ import {
   validateUniqueness,
   validateRequiredFields,
 } from '../utils/validationUtils.js';
-import { saveImageAndGetUrl } from '../utils/imageUtils.js';
+import { saveImageAndGetUrl, deleteImageFiles } from '../utils/imageUtils.js';
 
 class CategoryService {
   /**
@@ -56,12 +56,12 @@ class CategoryService {
 
     // If there is an image, save it and get URL
     if (data.image) {
-      const imageUrl = await saveImageAndGetUrl(
+      const imageUrls = await saveImageAndGetUrl(
         data.image,
-        'products',
-        'product'
+        'categories',
+        'category'
       );
-      data.image = imageUrl; // Replace buffer with URL
+      data.image = imageUrls; // Replace buffer with URL
     }
 
     // Create and save category
@@ -90,12 +90,12 @@ class CategoryService {
 
     // If there is an image, save it and get URL
     if (data.image) {
-      const imageUrl = await saveImageAndGetUrl(
+      const imageUrls = await saveImageAndGetUrl(
         data.image,
-        'products',
-        'product'
+        'categories',
+        'category'
       );
-      data.image = imageUrl; // Replace buffer with URL
+      data.image = imageUrls; // Replace buffer with URL
     }
 
     Object.assign(category, data);
@@ -120,12 +120,12 @@ class CategoryService {
 
     // If there is an image, save it and get URL
     if (data.image) {
-      const imageUrl = await saveImageAndGetUrl(
+      const imageUrls = await saveImageAndGetUrl(
         data.image,
-        'products',
-        'product'
+        'categories',
+        'category'
       );
-      data.image = imageUrl; // Replace buffer with URL
+      data.image = imageUrls; // Replace buffer with URL
     }
 
     // Partial update with validators
@@ -174,7 +174,8 @@ class CategoryService {
     if (!deletedCategory) {
       throw new NotFoundError('Category', id);
     }
-
+    // Delete images
+    await deleteImageFiles(deletedCategory.image, 'categories');
     return deletedCategory;
   }
 }

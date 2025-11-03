@@ -4,6 +4,7 @@ import {
   validateUniqueness,
   validateRequiredFields,
 } from '../utils/validationUtils.js';
+import { saveImageAndGetUrl, deleteImageFiles } from '../utils/imageUtils.js';
 
 class PersonService {
   /**
@@ -43,6 +44,16 @@ class PersonService {
     await validateUniqueness(Person, 'dni', data.dni, null, 'Person');
     await validateUniqueness(Person, 'email', data.email, null, 'Person');
 
+    // If there is an image, save it and get URL
+    if (data.image) {
+      const imageUrls = await saveImageAndGetUrl(
+        data.image,
+        'persons',
+        'person'
+      );
+      data.image = imageUrls; // Replace buffer with URL
+    }
+
     // Create and save person
     const person = new Person(data);
     return await person.save();
@@ -71,6 +82,16 @@ class PersonService {
     if (!person) {
       throw new NotFoundError('Person', id);
     }
+
+    // If there is an image, save it and get URL
+    if (data.image) {
+      const imageUrls = await saveImageAndGetUrl(
+        data.image,
+        'persons',
+        'person'
+      );
+      data.image = imageUrls; // Replace buffer with URL
+    }
     // Full update
     Object.assign(person, data);
 
@@ -93,6 +114,16 @@ class PersonService {
     }
     if (updates.email) {
       await validateUniqueness(Person, 'email', updates.email, id, 'Person');
+    }
+
+    // If there is an image, save it and get URL
+    if (data.image) {
+      const imageUrls = await saveImageAndGetUrl(
+        data.image,
+        'persons',
+        'person'
+      );
+      data.image = imageUrls; // Replace buffer with URL
     }
     // Partial update with validators
     const updatedPerson = await Person.findByIdAndUpdate(id, updates, {
@@ -139,6 +170,8 @@ class PersonService {
     if (!deletedPerson) {
       throw new NotFoundError('Person', id);
     }
+    // Delete images
+    await deleteImageFiles(deletedPerson.image, 'persons');
     return deletedPerson;
   }
 }
