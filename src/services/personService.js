@@ -4,7 +4,11 @@ import {
   validateUniqueness,
   validateRequiredFields,
 } from '../utils/validationUtils.js';
-import { saveImageAndGetUrl, deleteImageFiles } from '../utils/imageUtils.js';
+import {
+  saveImageAndGetUrl,
+  deleteImageFiles,
+  processImageUpdate,
+} from '../utils/imageUtils.js';
 
 class PersonService {
   /**
@@ -45,7 +49,7 @@ class PersonService {
     await validateUniqueness(Person, 'email', data.email, null, 'Person');
 
     // If there is an image, save it and get URL
-    if (data.image) {
+    if (data.image !== undefined) {
       const imageUrls = await saveImageAndGetUrl(
         data.image,
         'persons',
@@ -83,14 +87,17 @@ class PersonService {
       throw new NotFoundError('Person', id);
     }
 
-    // If there is an image, save it and get URL
-    if (data.image) {
-      const imageUrls = await saveImageAndGetUrl(
-        data.image,
-        'persons',
-        'person'
-      );
-      data.image = imageUrls; // Replace buffer with URL
+    // Save the old image for possible deletion
+    const oldImage = person.image;
+
+    // Process image using helper function
+    if (data.image !== undefined) {
+      data.image = await processImageUpdate(data.image, 'persons', 'person');
+
+      // If updating with a new image, delete old ones
+      if (data.image && oldImage) {
+        await deleteImageFiles(oldImage, 'persons');
+      }
     }
     // Full update
     Object.assign(person, data);
@@ -116,15 +123,28 @@ class PersonService {
       await validateUniqueness(Person, 'email', updates.email, id, 'Person');
     }
 
-    // If there is an image, save it and get URL
-    if (data.image) {
-      const imageUrls = await saveImageAndGetUrl(
-        data.image,
+    // Process image using helper function
+    if (updates.image !== undefined) {
+      // If there is a current image, get it for possible deletion
+      let oldImage = null;
+      // Only fetch current image if updating with a new buffer
+      if (updates.image && Buffer.isBuffer(updates.image)) {
+        const currentPerson = await Person.findById(id).select('image').exec();
+        oldImage = currentPerson?.image;
+      }
+
+      updates.image = await processImageUpdate(
+        updates.image,
         'persons',
         'person'
       );
-      data.image = imageUrls; // Replace buffer with URL
+
+      // If updating with a new image, delete the old ones
+      if (updates.image && oldImage) {
+        await deleteImageFiles(oldImage, 'persons');
+      }
     }
+
     // Partial update with validators
     const updatedPerson = await Person.findByIdAndUpdate(id, updates, {
       new: true,
@@ -160,6 +180,34 @@ class PersonService {
   }
 
   /**
+   * Delete only person image
+   * param {String} id - Person ID
+   * returns {Promise<Object>} Updated person document
+   * throws {NotFoundError} If person not found
+   */
+  async deleteImage(id) {
+    // Search for person and only select the image field for efficiency
+    const person = await Person.findById(id).select('image').exec();
+    if (!person) {
+      throw new NotFoundError('Person', id);
+    }
+
+    // If image exists, delete it from filesystem
+    if (person.image) {
+      await deleteImageFiles(person.image, 'persons');
+    }
+
+    // Update in the database in a single operation
+    const updatedPerson = await Person.findByIdAndUpdate(
+      id,
+      { image: null },
+      { new: true }
+    ).exec();
+
+    return updatedPerson;
+  }
+
+  /**
    * Delete a person (soft delete)
    * param {String} id - Person ID
    * returns {Promise<Object>} Deleted person document
@@ -170,8 +218,10 @@ class PersonService {
     if (!deletedPerson) {
       throw new NotFoundError('Person', id);
     }
-    // Delete images
-    await deleteImageFiles(deletedPerson.image, 'persons');
+    // Delete images using the helper function
+    if (deletedPerson.image) {
+      await deleteImageFiles(deletedPerson.image, 'persons');
+    }
     return deletedPerson;
   }
 }

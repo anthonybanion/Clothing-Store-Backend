@@ -55,10 +55,11 @@ export const updateOnePerson = async (req, res, next) => {
   try {
     // Get person ID from params and update data from body
     const { id } = req.params;
-    const personData = {
-      ...req.body,
-      image: req.file ? req.file.buffer : null, // Compressed image
-    };
+    const personData = { ...req.body };
+    // Only update image if a file is sent
+    if (req.file) {
+      personData.image = req.file.buffer;
+    }
     // Update person via service
     const updatedPerson = await personService.update(id, personData);
     // Successful response
@@ -75,10 +76,11 @@ export const updatePartialPerson = async (req, res, next) => {
   try {
     // Get person ID from params and partial update data from body
     const { id } = req.params;
-    const updateData = {
-      ...req.body,
-      image: req.file ? req.file.buffer : null, // Compressed image
-    };
+    const updateData = { ...req.body };
+    // Only update image if a file is sent
+    if (req.file) {
+      updateData.image = req.file.buffer;
+    }
     // Partially update person via service
     const updatedPerson = await personService.updatePartial(id, updateData);
     // Successful response
@@ -106,6 +108,20 @@ export const updatePersonStatus = async (req, res, next) => {
         name: updatedPerson.name,
         is_active: updatedPerson.is_active,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deletePersonImage = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const updatedPerson = await personService.deleteImage(id);
+    res.status(CODE.SUCCESS).json({
+      message: 'Person image deleted successfully',
+      data: updatedPerson,
     });
   } catch (error) {
     next(error);

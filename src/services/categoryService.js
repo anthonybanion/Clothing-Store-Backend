@@ -119,13 +119,13 @@ class CategoryService {
     }
 
     // If there is an image, save it and get URL
-    if (data.image) {
+    if (updates.image) {
       const imageUrls = await saveImageAndGetUrl(
-        data.image,
+        updates.image,
         'categories',
         'category'
       );
-      data.image = imageUrls; // Replace buffer with URL
+      updates.image = imageUrls; // Replace buffer with URL
     }
 
     // Partial update with validators

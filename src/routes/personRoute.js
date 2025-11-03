@@ -6,6 +6,7 @@ import {
   updateOnePerson,
   updatePartialPerson,
   updatePersonStatus,
+  deletePersonImage,
   deleteOnePerson,
 } from '../controllers/personController.js';
 import {
@@ -51,6 +52,14 @@ router.patch(
   handleValidationErrors,
   updatePersonStatus
 );
+
+router.delete(
+  '/:id/image',
+  personIdValidation,
+  handleValidationErrors,
+  deletePersonImage
+);
+
 router.delete(
   '/:id',
   personIdValidation,

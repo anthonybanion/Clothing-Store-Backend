@@ -1,13 +1,17 @@
 // ==========================================
-// Description: Category validation rules - SINGLE SOURCE OF TRUTH
-// File: categoryValidator.js
+//
+// Description: Category validations
+//
+// File: categoryValidation.js
+// Author: Anthony Bañon
+// Created: 2025-11-03
+// Last Updated: 2025-11-03
 // ==========================================
 
 import { body, param } from 'express-validator';
 
 // Regular expressions (SINGLE SOURCE - moved from model)
 const NAME_REGEX = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,'\-]{2,150}$/;
-const IMAGE_URL_REGEX = /^https:\/\/.*$/;
 
 // Common validation chains (REUSABLE)
 const nameValidation = () =>
@@ -78,7 +82,7 @@ export const updatePartialCategoryValidation = [
   descriptionValidation(),
   isActiveValidation(),
   body().custom((value, { req }) => {
-    if (Object.keys(req.body).length === 0) {
+    if (Object.keys(req.body).length === 0 && !req.file) {
       throw new Error('At least one field must be provided for update');
     }
     return true;
