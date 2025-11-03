@@ -17,6 +17,7 @@ import {
   updateOneCategory,
   updatePartialCategory,
   updateCategoryStatus,
+  deleteCategoryImage,
   deleteOneCategory,
 } from '../controllers/categoryController.js';
 
@@ -74,6 +75,14 @@ router.patch(
   handleValidationErrors,
   updateCategoryStatus
 );
+// DELETE category image - ID validation only
+router.delete(
+  '/:id/image',
+  categoryIdValidation,
+  handleValidationErrors,
+  deleteCategoryImage
+);
+
 // DELETE a category by ID - ID validation only
 router.delete(
   '/:id',

@@ -15,7 +15,11 @@ import {
   validateUniqueness,
   validateRequiredFields,
 } from '../utils/validationUtils.js';
-import { saveImageAndGetUrl, deleteImageFiles } from '../utils/imageUtils.js';
+import {
+  saveImageAndGetUrl,
+  deleteImageFiles,
+  processImageUpdate,
+} from '../utils/imageUtils.js';
 
 class CategoryService {
   /**
@@ -55,7 +59,7 @@ class CategoryService {
     await validateUniqueness(Category, 'name', data.name, null, 'Category');
 
     // If there is an image, save it and get URL
-    if (data.image) {
+    if (data.image !== undefined) {
       const imageUrls = await saveImageAndGetUrl(
         data.image,
         'categories',
@@ -88,14 +92,21 @@ class CategoryService {
       throw new NotFoundError('Category', id);
     }
 
-    // If there is an image, save it and get URL
-    if (data.image) {
-      const imageUrls = await saveImageAndGetUrl(
+    // Save the old image for possible deletion
+    const oldImage = category.image;
+
+    // Process image using helper function
+    if (data.image !== undefined) {
+      data.image = await processImageUpdate(
         data.image,
         'categories',
         'category'
       );
-      data.image = imageUrls; // Replace buffer with URL
+
+      // If updating with a new image, delete old ones
+      if (data.image && oldImage) {
+        await deleteImageFiles(oldImage, 'categories');
+      }
     }
 
     Object.assign(category, data);
@@ -118,14 +129,28 @@ class CategoryService {
       await validateUniqueness(Category, 'name', updates.name, id, 'Category');
     }
 
-    // If there is an image, save it and get URL
-    if (updates.image) {
-      const imageUrls = await saveImageAndGetUrl(
+    // Process image using helper function
+    if (updates.image !== undefined) {
+      // If there is a current image, get it for possible deletion
+      let oldImage = null;
+      // Only fetch current image if updating with a new buffer
+      if (updates.image && Buffer.isBuffer(updates.image)) {
+        const currentCategory = await Category.findById(id)
+          .select('image')
+          .exec();
+        oldImage = currentCategory?.image;
+      }
+
+      updates.image = await processImageUpdate(
         updates.image,
         'categories',
         'category'
       );
-      updates.image = imageUrls; // Replace buffer with URL
+
+      // If updating with a new image, delete the old ones
+      if (updates.image && oldImage) {
+        await deleteImageFiles(oldImage, 'categories');
+      }
     }
 
     // Partial update with validators
@@ -162,6 +187,34 @@ class CategoryService {
   }
 
   /**
+   * Delete only category image
+   * param {String} id - Category ID
+   * returns {Promise<Object>} Updated category document
+   * throws {NotFoundError} If category not found
+   */
+  async deleteImage(id) {
+    // Search for category and only select the image field for efficiency
+    const category = await Category.findById(id).select('image').exec();
+    if (!category) {
+      throw new NotFoundError('Category', id);
+    }
+
+    // If image exists, delete it from filesystem
+    if (category.image) {
+      await deleteImageFiles(category.image, 'categories');
+    }
+
+    // Update in the database in a single operation
+    const updatedCategory = await Category.findByIdAndUpdate(
+      id,
+      { image: null },
+      { new: true }
+    ).exec();
+
+    return updatedCategory;
+  }
+
+  /**
    * Hard delete a category from the database
    * param {string} id - Category ID
    * returns {Promise<Object>} Deleted category
@@ -174,8 +227,10 @@ class CategoryService {
     if (!deletedCategory) {
       throw new NotFoundError('Category', id);
     }
-    // Delete images
-    await deleteImageFiles(deletedCategory.image, 'categories');
+    // Delete images using the helper function
+    if (deletedCategory.image) {
+      await deleteImageFiles(deletedCategory.image, 'categories');
+    }
     return deletedCategory;
   }
 }

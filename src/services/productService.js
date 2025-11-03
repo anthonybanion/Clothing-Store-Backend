@@ -19,7 +19,11 @@ import {
   validateUniqueness,
   validateRequiredFields,
 } from '../utils/validationUtils.js';
-import { saveImageAndGetUrl, deleteImageFiles } from '../utils/imageUtils.js';
+import {
+  saveImageAndGetUrl,
+  deleteImageFiles,
+  processImageUpdate,
+} from '../utils/imageUtils.js';
 
 class ProductService {
   /**
@@ -64,7 +68,7 @@ class ProductService {
     await validateUniqueness(Product, 'sku', data.sku, null, 'Product');
 
     // If there is an image, save it and get URL
-    if (data.image) {
+    if (data.image !== undefined) {
       const imageUrls = await saveImageAndGetUrl(
         data.image,
         'products',
@@ -97,14 +101,17 @@ class ProductService {
       throw new NotFoundError('Product', id);
     }
 
-    // If there is an image, save it and get URL
-    if (data.image) {
-      const imageUrls = await saveImageAndGetUrl(
-        data.image,
-        'products',
-        'product'
-      );
-      data.image = imageUrls; // Replace buffer with URL
+    // Save the old image for possible deletion
+    const oldImage = product.image;
+
+    // Process image using helper function
+    if (data.image !== undefined) {
+      data.image = await processImageUpdate(data.image, 'products', 'product');
+
+      // If updating with a new image, delete old ones
+      if (data.image && oldImage) {
+        await deleteImageFiles(oldImage, 'products');
+      }
     }
     // Update fields
     Object.assign(product, data);
@@ -127,15 +134,30 @@ class ProductService {
       await validateUniqueness(Product, 'sku', updates.sku, id, 'Product');
     }
 
-    // If there is an image, save it and get URL
-    if (updates.image) {
-      const imageUrls = await saveImageAndGetUrl(
+    // Process image using helper function
+    if (updates.image !== undefined) {
+      // If there is a current image, get it for possible deletion
+      let oldImage = null;
+      // Only fetch current image if updating with a new buffer
+      if (updates.image && Buffer.isBuffer(updates.image)) {
+        const currentProduct = await Product.findById(id)
+          .select('image')
+          .exec();
+        oldImage = currentProduct?.image;
+      }
+
+      updates.image = await processImageUpdate(
         updates.image,
         'products',
         'product'
       );
-      updates.image = imageUrls; // Replace buffer with URL
+
+      // If updating with a new image, delete the old ones
+      if (updates.image && oldImage) {
+        await deleteImageFiles(oldImage, 'products');
+      }
     }
+
     // Partial update with validators
     const updatedProduct = await Product.findByIdAndUpdate(id, updates, {
       new: true,
@@ -178,6 +200,35 @@ class ProductService {
    * returns {Promise<Object>} Deleted product
    * throws {NotFoundError} If product not found
    */
+
+  /**
+   * Delete only product image
+   * param {String} id - Product ID
+   * returns {Promise<Object>} Updated product document
+   * throws {NotFoundError} If product not found
+   */
+  async deleteImage(id) {
+    // Search for product and only select the image field for efficiency
+    const product = await Product.findById(id).select('image').exec();
+    if (!product) {
+      throw new NotFoundError('Product', id);
+    }
+
+    // If image exists, delete it from filesystem
+    if (product.image) {
+      await deleteImageFiles(product.image, 'products');
+    }
+
+    // Update in the database in a single operation
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      { image: null },
+      { new: true }
+    ).exec();
+
+    return updatedProduct;
+  }
+
   async delete(id) {
     const deleteProduct = await Product.findByIdAndDelete(id).exec();
     // Validate existence
@@ -185,8 +236,10 @@ class ProductService {
       throw new NotFoundError('Product', id);
     }
 
-    // Delete images
-    await deleteImageFiles(deleteProduct.image, 'products');
+    // Delete images using the helper function
+    if (deleteProduct.image) {
+      await deleteImageFiles(deleteProduct.image, 'products');
+    }
 
     return deleteProduct;
   }

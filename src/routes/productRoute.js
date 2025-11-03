@@ -20,6 +20,7 @@ import {
   updatePartialProduct,
   updateProductStock,
   updateProductStatus,
+  deleteProductImage,
   deleteOneProduct,
 } from '../controllers/productController.js';
 // Validations
@@ -88,6 +89,13 @@ router.patch(
   updateProductStatusValidation,
   handleValidationErrors,
   updateProductStatus
+);
+// DELETE product image - ID validation only
+router.delete(
+  '/:id/image',
+  productIdValidation,
+  handleValidationErrors,
+  deleteProductImage
 );
 
 // DELETE a product - ID validation only

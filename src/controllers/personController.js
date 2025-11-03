@@ -1,3 +1,14 @@
+// ==========================================
+// 
+// Description: Person controller
+//
+// File: personController.js
+// Author: Anthony Bañon
+// Created: 2025-11-03
+// Last Updated: 2025-11-03
+// ==========================================
+
+
 import personService from '../services/personService.js';
 import { CODE } from '../config/constants.js';
 

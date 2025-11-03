@@ -67,10 +67,11 @@ export const getAllCategories = async (req, res, next) => {
 export const createOneCategory = async (req, res, next) => {
   try {
     // Get new category data from body and file
-    const categoryData = {
-      ...req.body,
-      image: req.file ? req.file.buffer : null, // Compressed image
-    };
+    const categoryData = { ...req.body };
+    // Only update image if a file is sent
+    if (req.file) {
+      categoryData.image = req.file.buffer;
+    }
     // Create new category via service
     const newCategory = await categoryService.create(categoryData);
     // Successful response
@@ -96,10 +97,11 @@ export const updateOneCategory = async (req, res, next) => {
   try {
     // Get category ID and updated data
     const { id } = req.params;
-    const categoryData = {
-      ...req.body,
-      image: req.file ? req.file.buffer : null, // Compressed image
-    };
+    const categoryData = { ...req.body };
+    // Only update image if a file is sent
+    if (req.file) {
+      categoryData.image = req.file.buffer;
+    }
     // Update category via service
     const updatedCategory = await categoryService.update(id, categoryData);
     // Successful response
@@ -125,12 +127,13 @@ export const updatePartialCategory = async (req, res, next) => {
   try {
     // Get category ID and partial updates
     const { id } = req.params;
-    const updates = {
-      ...req.body,
-      image: req.file ? req.file.buffer : null, // Compressed image
-    };
+    const updateData = { ...req.body };
+    // Only update image if a file is sent
+    if (req.file) {
+      updateData.image = req.file.buffer;
+    }
     // Partially update category via service
-    const updatedCategory = await categoryService.updatePartial(id, updates);
+    const updatedCategory = await categoryService.updatePartial(id, updateData);
     // Successful response
     res.status(CODE.SUCCESS).json({
       message: 'Category partially updated successfully',
@@ -175,6 +178,20 @@ export const updateCategoryStatus = async (req, res, next) => {
   }
 };
 
+export const deleteCategoryImage = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const updatedCategory = await categoryService.deleteImage(id);
+    res.status(CODE.SUCCESS).json({
+      message: 'Category image deleted successfully',
+      data: updatedCategory,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 /*
  * Delete one category
  *
@@ -182,7 +199,6 @@ export const updateCategoryStatus = async (req, res, next) => {
  * @returns {Promise<Object>} Deleted category document
  * @throws {Error} If an error occurs during deletion
  */
-
 export const deleteOneCategory = async (req, res, next) => {
   try {
     // Get category ID from params
