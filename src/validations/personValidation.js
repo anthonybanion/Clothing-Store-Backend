@@ -6,8 +6,8 @@
 // File: personValidators.js
 // Author: Anthony Bañon
 // Created: 2025-10-21
-// Last Updated: 2025-10-29
-// Changes: Added comprehensive validations and reusable chains
+// Last Updated: 2025-11-03
+// Changes: Delete image processing validations
 // ==========================================
 
 import { body, param } from 'express-validator';
@@ -15,7 +15,6 @@ import { body, param } from 'express-validator';
 // Regular expressions (SINGLE SOURCE - moved from model)
 const NAME_REGEX = /^[A-Za-zÁÉÍÓÚáéíóúÑñ']{2,50}$/;
 const DNI_REGEX = /^[0-9]{8}$/;
-const PHOTO_URL_REGEX = /^https:\/\/.*$/;
 const EMAIL_REGEX = /^[\w\.-]{1,64}@[\w\.-]+\.\w{2,63}$/;
 
 // Common validation chains (REUSABLE)
@@ -46,14 +45,6 @@ const dniValidation = () =>
     .withMessage('DNI must be exactly 8 digits')
     .matches(DNI_REGEX)
     .withMessage('DNI must contain only numbers (8 digits)');
-
-const profilePhotoValidation = () =>
-  body('profile_photo')
-    .optional()
-    .isURL()
-    .withMessage('Profile photo must be a valid URL')
-    .matches(PHOTO_URL_REGEX)
-    .withMessage('Profile photo must be HTTPS URL');
 
 const emailValidation = () =>
   body('email')
@@ -118,7 +109,6 @@ export const createPersonValidation = [
   firstNameValidation(),
   lastNameValidation(),
   dniValidation(),
-  profilePhotoValidation(),
   emailValidation(),
   isActiveValidation(),
 ];
@@ -128,7 +118,6 @@ export const updatePersonValidation = [
   firstNameValidation(),
   lastNameValidation(),
   dniValidation(),
-  profilePhotoValidation(),
   emailValidation(),
   isActiveValidation(),
 ];
@@ -138,11 +127,10 @@ export const updatePartialPersonValidation = [
   optionalFirstNameValidation(),
   optionalLastNameValidation(),
   optionalDniValidation(),
-  profilePhotoValidation(),
   optionalEmailValidation(),
   isActiveValidation(),
   body().custom((value, { req }) => {
-    if (Object.keys(req.body).length === 0) {
+    if (Object.keys(req.body).length === 0 && !req.file) {
       throw new Error('At least one field must be provided for update');
     }
     return true;

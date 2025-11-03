@@ -1,21 +1,19 @@
 // ==========================================
-// 
+//
 // Description: Product validation rules
 //
 // File: productValidation.js
 // Author: Anthony Bañon
 // Created: 2025-11-02
-// Last Updated: 2025-11-02
+// Last Updated: 2025-11-03
+// Changes: Delete image processing validations
 // ==========================================
-
-
 
 import { body, param } from 'express-validator';
 
 // Regular expressions (SINGLE SOURCE - moved from model)
 const SKU_REGEX = /^[A-Z0-9-]{3,20}$/;
 const NAME_REGEX = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,'\-]{2,150}$/;
-const IMAGE_URL_REGEX = /^https:\/\/.*$/;
 
 // Common validation chains (REUSABLE - no code duplication)
 const skuValidation = () =>
@@ -135,7 +133,7 @@ export const updatePartialProductValidation = [
 
   // Validate at least one field is provided
   body().custom((value, { req }) => {
-    if (Object.keys(req.body).length === 0) {
+    if (Object.keys(req.body).length === 0 && !req.file) {
       throw new Error('At least one field must be provided for update');
     }
     return true;

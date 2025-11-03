@@ -38,9 +38,13 @@ const productSchema = new mongoose.Schema(
 
     // URL of product image
     image: {
-      type: String,
+      type: {
+        desktop: String,
+        mobile: String,
+        thumbnail: String,
+      },
       default: null,
-      comment: 'URL of product image',
+      comment: 'Product image URLs for different sizes',
     },
 
     // Product description

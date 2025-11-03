@@ -6,6 +6,7 @@ import {
   updateOnePerson,
   updatePartialPerson,
   updatePersonStatus,
+  deletePersonImage,
   deleteOnePerson,
 } from '../controllers/personController.js';
 import {
@@ -17,6 +18,8 @@ import {
 } from '../validations/personValidation.js';
 // Middleware to handle validation errors
 import { handleValidationErrors } from '../middlewares/validationMiddleware.js';
+// Middleware for image upload
+import { uploadImage } from '../middlewares/uploadMiddleware.js';
 
 const router = Router();
 
@@ -24,18 +27,21 @@ router.get('/:id', personIdValidation, handleValidationErrors, getOnePerson);
 router.get('/', getAllPersons);
 router.post(
   '/',
+  uploadImage,
   createPersonValidation,
   handleValidationErrors,
   createOnePerson
 );
 router.put(
   '/:id',
+  uploadImage,
   updatePersonValidation,
   handleValidationErrors,
   updateOnePerson
 );
 router.patch(
   '/:id',
+  uploadImage,
   updatePartialPersonValidation,
   handleValidationErrors,
   updatePartialPerson
@@ -46,6 +52,14 @@ router.patch(
   handleValidationErrors,
   updatePersonStatus
 );
+
+router.delete(
+  '/:id/image',
+  personIdValidation,
+  handleValidationErrors,
+  deletePersonImage
+);
+
 router.delete(
   '/:id',
   personIdValidation,

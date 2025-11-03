@@ -18,9 +18,13 @@ const categorySchema = new mongoose.Schema(
 
     // URL of category image
     image: {
-      type: String,
+      type: {
+        desktop: String,
+        mobile: String,
+        thumbnail: String,
+      },
       default: null,
-      comment: 'URL of category image',
+      comment: 'Category image URLs for different sizes',
     },
 
     // Category description

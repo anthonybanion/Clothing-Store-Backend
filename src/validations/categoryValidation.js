@@ -1,13 +1,17 @@
 // ==========================================
-// Description: Category validation rules - SINGLE SOURCE OF TRUTH
-// File: categoryValidator.js
+//
+// Description: Category validations
+//
+// File: categoryValidation.js
+// Author: Anthony Bañon
+// Created: 2025-11-03
+// Last Updated: 2025-11-03
 // ==========================================
 
 import { body, param } from 'express-validator';
 
 // Regular expressions (SINGLE SOURCE - moved from model)
 const NAME_REGEX = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,'\-]{2,150}$/;
-const IMAGE_URL_REGEX = /^https:\/\/.*$/;
 
 // Common validation chains (REUSABLE)
 const nameValidation = () =>
@@ -19,14 +23,6 @@ const nameValidation = () =>
     .matches(NAME_REGEX)
     .withMessage('Category name contains invalid characters')
     .trim();
-
-const imageValidation = () =>
-  body('image')
-    .optional()
-    .isURL()
-    .withMessage('Image must be a valid URL')
-    .matches(IMAGE_URL_REGEX)
-    .withMessage('Image must be HTTPS URL');
 
 const descriptionValidation = () =>
   body('description')
@@ -51,16 +47,6 @@ const optionalNameValidation = () =>
     .withMessage('Category name contains invalid characters')
     .trim();
 
-// Required versions for complete updates
-const requiredImageValidation = () =>
-  body('image')
-    .notEmpty()
-    .withMessage('Image is required for complete update')
-    .isURL()
-    .withMessage('Image must be a valid URL')
-    .matches(IMAGE_URL_REGEX)
-    .withMessage('Image must be HTTPS URL');
-
 const requiredDescriptionValidation = () =>
   body('description')
     .notEmpty()
@@ -79,7 +65,6 @@ const requiredIsActiveValidation = () =>
 // Main validation exports
 export const createCategoryValidation = [
   nameValidation(),
-  imageValidation(),
   descriptionValidation(),
   isActiveValidation(),
 ];
@@ -87,7 +72,6 @@ export const createCategoryValidation = [
 export const updateCategoryValidation = [
   param('id').isMongoId().withMessage('Invalid category ID'),
   nameValidation(),
-  requiredImageValidation(),
   requiredDescriptionValidation(),
   requiredIsActiveValidation(),
 ];
@@ -95,11 +79,10 @@ export const updateCategoryValidation = [
 export const updatePartialCategoryValidation = [
   param('id').isMongoId().withMessage('Invalid category ID'),
   optionalNameValidation(),
-  imageValidation(),
   descriptionValidation(),
   isActiveValidation(),
   body().custom((value, { req }) => {
-    if (Object.keys(req.body).length === 0) {
+    if (Object.keys(req.body).length === 0 && !req.file) {
       throw new Error('At least one field must be provided for update');
     }
     return true;

@@ -117,10 +117,11 @@ export const createOneProduct = async (req, res, next) => {
 export const updateOneProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const productData = {
-      ...req.body,
-      image: req.file ? req.file.buffer : null, // Compressed image
-    };
+    const productData = { ...req.body };
+    // Only update image if a file is sent
+    if (req.file) {
+      productData.image = req.file.buffer;
+    }
 
     const updatedProduct = await productService.update(id, productData);
 
@@ -145,12 +146,13 @@ export const updateOneProduct = async (req, res, next) => {
 export const updatePartialProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const updates = {
-      ...req.body,
-      image: req.file ? req.file.buffer : null, // Compressed image
-    };
+    const updateData = { ...req.body };
+    // Only update image if a file is sent
+    if (req.file) {
+      updateData.image = req.file.buffer;
+    }
 
-    const updatedProduct = await productService.updatePartial(id, updates);
+    const updatedProduct = await productService.updatePartial(id, updateData);
 
     res.status(CODE.SUCCESS).json({
       message: 'Product partially updated successfully',
@@ -210,6 +212,20 @@ export const updateProductStatus = async (req, res, next) => {
         name: updatedProduct.name,
         is_active: updatedProduct.is_active,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteProductImage = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const updatedProduct = await productService.deleteImage(id);
+    res.status(CODE.SUCCESS).json({
+      message: 'Product image deleted successfully',
+      data: updatedProduct,
     });
   } catch (error) {
     next(error);

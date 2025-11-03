@@ -1,3 +1,14 @@
+// ==========================================
+// 
+// Description: Person controller
+//
+// File: personController.js
+// Author: Anthony Bañon
+// Created: 2025-11-03
+// Last Updated: 2025-11-03
+// ==========================================
+
+
 import personService from '../services/personService.js';
 import { CODE } from '../config/constants.js';
 
@@ -33,8 +44,12 @@ export const getAllPersons = async (req, res, next) => {
 
 export const createOnePerson = async (req, res, next) => {
   try {
-    // Get new person data from body
-    const personData = req.body;
+    // Get new person data from body and file (image)
+    const personData = {
+      ...req.body,
+      image: req.file ? req.file.buffer : null, // Compressed image
+    };
+
     // Create new person via service
     const newPerson = await personService.create(personData);
     // Successful response
@@ -51,9 +66,13 @@ export const updateOnePerson = async (req, res, next) => {
   try {
     // Get person ID from params and update data from body
     const { id } = req.params;
-    const updateData = req.body;
+    const personData = { ...req.body };
+    // Only update image if a file is sent
+    if (req.file) {
+      personData.image = req.file.buffer;
+    }
     // Update person via service
-    const updatedPerson = await personService.update(id, updateData);
+    const updatedPerson = await personService.update(id, personData);
     // Successful response
     res.status(CODE.SUCCESS).json({
       message: 'Person updated successfully',
@@ -68,7 +87,11 @@ export const updatePartialPerson = async (req, res, next) => {
   try {
     // Get person ID from params and partial update data from body
     const { id } = req.params;
-    const updateData = req.body;
+    const updateData = { ...req.body };
+    // Only update image if a file is sent
+    if (req.file) {
+      updateData.image = req.file.buffer;
+    }
     // Partially update person via service
     const updatedPerson = await personService.updatePartial(id, updateData);
     // Successful response
@@ -90,7 +113,25 @@ export const updatePersonStatus = async (req, res, next) => {
     const updatedPerson = await personService.updateStatus(id, is_active);
     // Successful response
     res.status(CODE.SUCCESS).json({
-      message: 'Person status updated successfully',
+      message: `Person ${is_active ? 'restored' : 'deactivated'} successfully`,
+      data: {
+        id: updatedPerson._id,
+        name: updatedPerson.name,
+        is_active: updatedPerson.is_active,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deletePersonImage = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const updatedPerson = await personService.deleteImage(id);
+    res.status(CODE.SUCCESS).json({
+      message: 'Person image deleted successfully',
       data: updatedPerson,
     });
   } catch (error) {
