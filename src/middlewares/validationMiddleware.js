@@ -1,6 +1,6 @@
 // ==========================================
 //
-// Description:
+// Description: Middleware to handle validation errors using express-validator
 //
 // File: validationMiddleware.js
 // Author: Anthony Bañon

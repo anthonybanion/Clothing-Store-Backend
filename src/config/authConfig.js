@@ -1,3 +1,15 @@
+// ==========================================
+//
+// Description:
+//
+// File: authConfig.js
+// Author: Anthony Bañon
+// Created: 2025-11-03
+// Last Updated: 2025-11-03
+// ==========================================
+
+import { LIMIT } from './constants.js';
+
 export const authConfig = {
   jwt: {
     secret: process.env.JWT_SECRET || 'fallback-secret',
@@ -11,7 +23,7 @@ export const authConfig = {
 
   cookie: {
     name: 'auth_token',
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
+    maxAge: LIMIT.ACCOUNT_DELETION,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

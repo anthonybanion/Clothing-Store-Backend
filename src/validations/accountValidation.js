@@ -124,24 +124,8 @@ export const updateAccountStatusValidation = [
     .withMessage('active must be true or false'),
 ];
 
-// Special validation for login
-export const loginValidation = [
-  body('username')
-    .notEmpty()
-    .withMessage('Username is required')
-    .trim()
-    .toLowerCase(),
-
-  body('password').notEmpty().withMessage('Password is required'),
-];
-
-// Special validation for password change
-export const changePasswordValidation = [
+export const resetPasswordValidation = [
   param('id').isMongoId().withMessage('Invalid account ID'),
-  body('currentPassword')
-    .notEmpty()
-    .withMessage('Current password is required'),
-
   body('newPassword')
     .notEmpty()
     .withMessage('New password is required')

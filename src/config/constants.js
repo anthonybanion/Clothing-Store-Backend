@@ -32,4 +32,5 @@ export const PAGINATION = {
 
 export const LIMIT = {
   PROFILE_IMAGE: 5 * 1024 * 1024, // 5 MB
+  ACCOUNT_DELETION: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
 };

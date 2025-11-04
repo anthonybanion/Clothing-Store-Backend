@@ -229,3 +229,50 @@ export class ShippingError extends baseError {
     );
   }
 }
+
+/**
+ * Authentication Error
+ * When there is an authentication-related error
+ * Usage: new AuthError('Authentication failed', CODE.UNAUTHORIZED, 'AUTH_FAILED')
+ *        new AuthError('Session expired', CODE.UNAUTHORIZED, 'SESSION_EXPIRED')
+ */
+
+export class AuthError extends baseError {
+  constructor(
+    message,
+    code = CODE.UNAUTHORIZED,
+    errorCode = 'AUTH_ERROR',
+    details = null
+  ) {
+    super(message, code, errorCode, { entity: 'Auth', ...details });
+  }
+}
+
+/** * Invalid Credentials Error
+ * When the provided credentials are invalid
+ * Usage: new InvalidCredentialsError()
+ *       new InvalidCredentialsError();
+ */
+
+export class InvalidCredentialsError extends AuthError {
+  constructor() {
+    super(
+      'Invalid username or password',
+      CODE.UNAUTHORIZED,
+      'INVALID_CREDENTIALS'
+    );
+  }
+}
+
+/**
+ * Account Inactive Error
+ *
+ * When the user account is inactive
+ * Usage: new AccountInactiveError()
+ *       new AccountInactiveError();
+ */
+export class AccountInactiveError extends AuthError {
+  constructor() {
+    super('Account is inactive', CODE.UNAUTHORIZED, 'ACCOUNT_INACTIVE');
+  }
+}

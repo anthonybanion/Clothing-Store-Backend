@@ -107,3 +107,189 @@ export function validateRequiredFields(
     );
   }
 }
+
+/**
+ * Validates that a value is one of the allowed values
+ * param {Any} value - Value to validate
+ * param {Array} allowedValues - Array of allowed values
+ * param {String} fieldName - Name of the field (for error messages)
+ * param {String} [entityName] - Name of the entity (for error messages)
+ * throws {ValidationError} If value is not in allowed values
+ * example
+ * // Validate role
+ * validateAllowedValues(role, ['admin', 'user'], 'role', 'User');
+ * example
+ * // Validate status
+ * validateAllowedValues(status, ['active', 'inactive'], 'status', 'Order');
+ */
+export function validateAllowedValues(
+  value,
+  allowedValues,
+  fieldName,
+  entityName = 'Entity'
+) {
+  if (!allowedValues.includes(value)) {
+    throw new ValidationError(
+      entityName,
+      `${fieldName} must be one of: ${allowedValues.join(
+        ', '
+      )}. Received: ${value}`,
+      { field: fieldName, value, allowedValues }
+    );
+  }
+}
+
+/**
+ * Validates minimum length for string fields
+ * param {String} value - Value to validate
+ * param {Number} minLength - Minimum required length
+ * param {String} fieldName - Name of the field (for error messages)
+ * param {String} [entityName] - Name of the entity (for error messages)
+ * throws {ValidationError} If value is shorter than minLength
+ * example
+ * // Validate password length
+ * validateMinLength(password, 6, 'password', 'User');
+ * example
+ * // Validate username length
+ * validateMinLength(username, 3, 'username', 'User');
+ */
+export function validateMinLength(
+  value,
+  minLength,
+  fieldName,
+  entityName = 'Entity'
+) {
+  if (value && value.length < minLength) {
+    throw new ValidationError(
+      entityName,
+      `${fieldName} must be at least ${minLength} characters long. Current: ${value.length}`,
+      { field: fieldName, value, minLength, actualLength: value.length }
+    );
+  }
+}
+
+/**
+ * Validates maximum length for string fields
+ * param {String} value - Value to validate
+ * param {Number} maxLength - Maximum allowed length
+ * param {String} fieldName - Name of the field (for error messages)
+ * param {String} [entityName] - Name of the entity (for error messages)
+ * throws {ValidationError} If value is longer than maxLength
+ * example
+ * // Validate description length
+ * validateMaxLength(description, 500, 'description', 'Product');
+ */
+export function validateMaxLength(
+  value,
+  maxLength,
+  fieldName,
+  entityName = 'Entity'
+) {
+  if (value && value.length > maxLength) {
+    throw new ValidationError(
+      entityName,
+      `${fieldName} must be at most ${maxLength} characters long. Current: ${value.length}`,
+      { field: fieldName, value, maxLength, actualLength: value.length }
+    );
+  }
+}
+
+/**
+ * Validates numeric range
+ * param {Number} value - Value to validate
+ * param {Number} min - Minimum value (inclusive)
+ * param {Number} max - Maximum value (inclusive)
+ * param {String} fieldName - Name of the field (for error messages)
+ * param {String} [entityName] - Name of the entity (for error messages)
+ * throws {ValidationError} If value is outside the allowed range
+ * example
+ * // Validate price range
+ * validateNumericRange(price, 0, 10000, 'price', 'Product');
+ * example
+ * // Validate quantity range
+ * validateNumericRange(quantity, 1, 100, 'quantity', 'Order');
+ */
+export function validateNumericRange(
+  value,
+  min,
+  max,
+  fieldName,
+  entityName = 'Entity'
+) {
+  if (value < min || value > max) {
+    throw new ValidationError(
+      entityName,
+      `${fieldName} must be between ${min} and ${max}. Received: ${value}`,
+      { field: fieldName, value, min, max }
+    );
+  }
+}
+
+/**
+ * Validates email format
+ * param {String} email - Email to validate
+ * param {String} [fieldName='email'] - Name of the field (for error messages)
+ * param {String} [entityName] - Name of the entity (for error messages)
+ * throws {ValidationError} If email format is invalid
+ * example
+ * // Validate user email
+ * validateEmail(userEmail, 'email', 'User');
+ * example
+ * // Validate contact email with custom field name
+ * validateEmail(contactEmail, 'contact_email', 'Business');
+ */
+export function validateEmail(
+  email,
+  fieldName = 'email',
+  entityName = 'Entity'
+) {
+  const emailRegex = /^[^\s]+[^\s]+\.[^\s]+$/;
+  if (email && !emailRegex.test(email)) {
+    throw new ValidationError(
+      entityName,
+      `${fieldName} has an invalid format`,
+      { field: fieldName, value: email, pattern: 'email' }
+    );
+  }
+}
+
+/**
+ * Validates that an array is not empty
+ * param {Array} array - Array to validate
+ * param {String} fieldName - Name of the field (for error messages)
+ * param {String} [entityName] - Name of the entity (for error messages)
+ * throws {ValidationError} If array is empty
+ * example
+ * // Validate categories array
+ * validateNonEmptyArray(categories, 'categories', 'Product');
+ * example
+ * // Validate tags array
+ * validateNonEmptyArray(tags, 'tags', 'Article');
+ */
+export function validateNonEmptyArray(array, fieldName, entityName = 'Entity') {
+  if (!Array.isArray(array) || array.length === 0) {
+    throw new ValidationError(entityName, `${fieldName} cannot be empty`, {
+      field: fieldName,
+      value: array,
+    });
+  }
+}
+
+/**
+ * Validates that a value is not null or undefined
+ * param {Any} value - Value to validate
+ * param {String} fieldName - Name of the field (for error messages)
+ * param {String} [entityName] - Name of the entity (for error messages)
+ * throws {ValidationError} If value is null or undefined
+ * example
+ * // Validate required reference
+ * validateNotNull(personId, 'personId', 'Account');
+ */
+export function validateNotNull(value, fieldName, entityName = 'Entity') {
+  if (value === null || value === undefined) {
+    throw new ValidationError(entityName, `${fieldName} is required`, {
+      field: fieldName,
+      value,
+    });
+  }
+}
