@@ -40,7 +40,7 @@ const accountSchema = new mongoose.Schema(
     },
 
     // Account active status
-    active: {
+    is_active: {
       type: Boolean,
       required: true,
       default: true,
@@ -54,6 +54,18 @@ const accountSchema = new mongoose.Schema(
       required: true,
       unique: true,
       comment: 'Reference to Person (1:1 relationship)',
+    },
+    // Refresh token for session management
+    refreshToken: {
+      type: String,
+      default: null,
+      comment: 'Current valid refresh token',
+    },
+    // Expiration date of refresh token
+    refreshTokenExpires: {
+      type: Date,
+      default: null,
+      comment: 'Expiration date of refresh token',
     },
   },
   {
