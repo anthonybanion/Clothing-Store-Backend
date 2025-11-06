@@ -36,6 +36,7 @@ import {
 import {
   authenticateToken,
   requireRole,
+  requireOwnershipOrRole,
 } from '../middlewares/authMiddleware.js';
 import { handleValidationErrors } from '../middlewares/validationMiddleware.js';
 
@@ -48,6 +49,7 @@ router.get('/', authenticateToken, requireRole(['admin']), getAllAccounts);
 router.get(
   '/:id',
   authenticateToken,
+  requireOwnershipOrRole(['admin']),
   accountIdValidation,
   handleValidationErrors,
   getOneAccount
@@ -67,6 +69,7 @@ router.post(
 router.put(
   '/:id',
   authenticateToken,
+  requireOwnershipOrRole(['admin']),
   accountIdValidation,
   updateAccountValidation,
   handleValidationErrors,
@@ -77,6 +80,7 @@ router.put(
 router.put(
   '/:id/username',
   authenticateToken,
+  requireOwnershipOrRole(['admin']),
   accountIdValidation,
   updateUsernameValidation,
   handleValidationErrors,
