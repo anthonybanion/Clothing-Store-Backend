@@ -13,7 +13,8 @@ import { LIMIT } from './constants.js';
 export const authConfig = {
   jwt: {
     secret: process.env.JWT_SECRET || 'fallback-secret',
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+    refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d',
     issuer: process.env.APP_NAME || 'clothing-store',
   },
 

@@ -8,7 +8,7 @@
 // Last Updated: 2025-11-04
 // ==========================================
 
-import Account from '../models/Account.js';
+import Account from '../models/accountModel.js';
 import {
   NotFoundError,
   DuplicateError,
@@ -50,8 +50,9 @@ class AccountService {
     await validateUniqueness(Account, 'username', data.username);
 
     // Hash password before saving
+    let hashedPassword;
     if (data.password) {
-      data.password = await bcrypt.hash(
+      hashedPassword = await bcrypt.hash(
         data.password,
         authConfig.bcrypt.saltRounds
       );

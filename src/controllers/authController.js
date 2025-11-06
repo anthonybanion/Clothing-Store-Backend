@@ -15,23 +15,23 @@ export const login = async (req, res, next) => {
   try {
     const { username, password } = req.body;
 
-    const { token, account } = await AuthService.login(username, password);
+    const { accessToken, refreshToken, account } = await AuthService.login(
+      username,
+      password
+    );
 
     res.status(CODE.SUCCESS).json({
       success: true,
       message: 'Login successful',
       data: {
-        token,
+        accessToken,
+        refreshToken,
         user: {
           id: account._id,
           username: account.username,
           role: account.role,
           is_active: account.is_active,
-          person: {
-            id: account.person._id,
-            name: account.person.name,
-            email: account.person.email,
-          },
+          person: account.person,
         },
       },
     });
@@ -120,22 +120,50 @@ export const getProfile = async (req, res, next) => {
 
 export const refreshToken = async (req, res, next) => {
   try {
-    const { token } = req.body;
+    const { refreshToken } = req.body;
 
-    const { userData, newToken } = await AuthService.refreshToken(token);
+    const { userData, accessToken } = await AuthService.refreshToken(
+      refreshToken
+    );
 
     res.status(CODE.SUCCESS).json({
       success: true,
       message: 'Token refreshed successfully',
       data: {
-        token: newToken,
+        accessToken: accessToken,
         user: {
           id: userData._id,
           username: userData.username,
           role: userData.role,
-          personId: userData.personId,
+          personId: userData.person._id.toString(),
           person: userData.person,
         },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Logout user - invalidate refresh token
+ * param {Object} req - Express request object
+ * param {Object} res - Express response object
+ * param {Function} next - Express next middleware function
+ */
+export const logout = async (req, res, next) => {
+  try {
+    const { id } = req.user; // From authenticated user
+
+    const account = await AuthService.logout(id);
+
+    res.status(CODE.SUCCESS).json({
+      success: true,
+      message: 'Logout successful',
+      data: {
+        id: account._id,
+        username: account.username,
+        message: 'Logout successful - tokens invalidated',
       },
     });
   } catch (error) {

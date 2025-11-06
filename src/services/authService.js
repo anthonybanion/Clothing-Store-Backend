@@ -1,10 +1,12 @@
 // /services/authService.js
-import Account from '../models/Account.js';
+import Account from '../models/accountModel.js';
 import JWTUtils from '../utils/jwtUtils.js';
 import {
   ValidationError,
   NotFoundError,
   InvalidCredentialsError,
+  InvalidTokenError,
+  TokenExpiredError,
 } from '../errors/businessError.js';
 import bcrypt from 'bcrypt';
 import authConfig from '../config/authConfig.js';
@@ -49,12 +51,22 @@ class AuthService {
     };
 
     // Generate JWT token
-    const token = JWTUtils.generateToken(tokenPayload);
+    const accessToken = JWTUtils.generateAccessToken(tokenPayload); // '15m' from .env
+    const refreshToken = JWTUtils.generateRefreshToken(tokenPayload); // '7d' from .env
+
+    const refreshTokenDecoded = JWTUtils.decodeToken(refreshToken);
+    const refreshTokenExpires = new Date(refreshTokenDecoded.exp * 1000); // Convertir timestamp a Date
+
+    // SAVE REFRESH TOKEN IN DATABASE
+    account.refreshToken = refreshToken;
+    account.refreshTokenExpires = refreshTokenExpires;
+    await account.save();
 
     // Return information (without password)
     return {
-      token,
-      account, // Returns the full account, the controller decides which fields to use
+      accessToken,
+      refreshToken,
+      account,
     };
   }
 
@@ -157,27 +169,65 @@ class AuthService {
   }
 
   /**
-   * Refresh JWT token
-   *
-   * param {string} oldToken - Old JWT token
-   * returns {Object} - New token and user data
-   * throws {InvalidTokenError} - If token is invalid
-   * throws {TokenExpiredError} - If token has expired
+   * Refresh JWT token using refresh token
+   * param {string} refreshToken - Refresh token
+   * returns {Object} - New access token and user data
+   * throws {InvalidTokenError} - If refresh token is invalid
+   * throws {TokenExpiredError} - If refresh token has expired
    * throws {NotFoundError} - If account not found
    */
-  async refreshToken(oldToken) {
-    // Validate old token
-    const userData = await this.validateToken(oldToken);
+  async refreshToken(refreshToken) {
+    // Check if the refresh token is valid JWT
+    const decoded = JWTUtils.verifyToken(refreshToken);
 
-    // Generate new token
-    const newToken = JWTUtils.generateToken({
-      id: userData.id,
-      username: userData.username,
-      role: userData.role,
-      personId: userData.personId,
-    });
+    // Find the account with THIS specific refresh token and that has not expired
+    const account = await Account.findOne({
+      _id: decoded.id,
+      refreshToken: refreshToken, //MUST match exactly
+      refreshTokenExpires: { $gt: new Date() }, //That has not expired in BD
+      is_active: true,
+    }).populate('person');
 
-    return { userData, newToken };
+    if (!account) {
+      throw new InvalidTokenError('Refresh token invalid or expired');
+    }
+
+    // Generate NEW access token (ONLY access token, not new refresh token)
+    const tokenPayload = {
+      id: account._id.toString(),
+      username: account.username,
+      role: account.role,
+      personId: account.person._id.toString(),
+    };
+
+    const newAccessToken = JWTUtils.generateAccessToken(tokenPayload);
+
+    return {
+      userData: account,
+      accessToken: newAccessToken, //New access token only
+    };
+  }
+
+  /**
+   * Logout user - invalidate refresh token
+   * param {string} userId - User ID
+   * returns {Promise<Object>} - Updated account
+   */
+  async logout(userId) {
+    // Find account and validate it exists
+    const account = await Account.findById(userId);
+    if (!account) {
+      throw new NotFoundError('Account', userId);
+    }
+
+    // Invalidate refresh token by clearing it from the database
+    account.refreshToken = null;
+    account.refreshTokenExpires = null;
+
+    // Save the changes
+    await account.save();
+
+    return account;
   }
 }
 

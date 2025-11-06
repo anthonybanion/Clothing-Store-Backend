@@ -46,7 +46,9 @@ export const getOneProduct = async (req, res, next) => {
 
 export const getAllProducts = async (req, res, next) => {
   try {
-    const productsList = await productService.getAll();
+    const { page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+    const productsList = await productService.getAll(page, limit, offset);
 
     res.status(CODE.SUCCESS).json({
       message: 'Products retrieved successfully',

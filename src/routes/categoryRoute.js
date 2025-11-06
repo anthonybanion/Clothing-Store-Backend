@@ -29,12 +29,18 @@ import {
   updatePartialCategoryValidation,
 } from '../validations/categoryValidation.js';
 
-// Middleware to handle validation errors
+// Middlewares
 import { handleValidationErrors } from '../middlewares/validationMiddleware.js';
-// Middleware for image upload
 import { uploadImage } from '../middlewares/uploadMiddleware.js';
+import {
+  authenticateToken,
+  requireRole,
+} from '../middlewares/authMiddleware.js';
 
 const router = Router();
+///////////////////////////////////////////////
+// 🔓 PUBLIC ROUTES (no authentication)
+///////////////////////////////////////////////
 // GET one category by ID - ID validation only
 router.get(
   '/:id',
@@ -44,9 +50,15 @@ router.get(
 );
 // GET all categories - NO validation needed (read-only)
 router.get('/', getAllCategories);
+
+///////////////////////////////////////////////
+// 🔐 PROTECTED ROUTES (require authentication)
+///////////////////////////////////////////////
 // POST a new category - Full validation required
 router.post(
   '/',
+  authenticateToken,
+  requireRole(['admin']),
   uploadImage,
   createCategoryValidation,
   handleValidationErrors,
@@ -55,6 +67,8 @@ router.post(
 // PUT update a category completely - Full validation
 router.put(
   '/:id',
+  authenticateToken,
+  requireRole(['admin']),
   uploadImage,
   updateCategoryValidation,
   handleValidationErrors,
@@ -63,6 +77,8 @@ router.put(
 // PATCH update a category partially - Partial validation
 router.patch(
   '/:id',
+  authenticateToken,
+  requireRole(['admin']),
   uploadImage,
   updatePartialCategoryValidation,
   handleValidationErrors,
@@ -71,6 +87,8 @@ router.patch(
 // PATCH update category status - Status validation only
 router.patch(
   '/:id/status',
+  authenticateToken,
+  requireRole(['admin']),
   updateCategoryStatusValidation,
   handleValidationErrors,
   updateCategoryStatus
@@ -78,6 +96,8 @@ router.patch(
 // DELETE category image - ID validation only
 router.delete(
   '/:id/image',
+  authenticateToken,
+  requireRole(['admin']),
   categoryIdValidation,
   handleValidationErrors,
   deleteCategoryImage
@@ -86,6 +106,8 @@ router.delete(
 // DELETE a category by ID - ID validation only
 router.delete(
   '/:id',
+  authenticateToken,
+  requireRole(['admin']),
   categoryIdValidation,
   handleValidationErrors,
   deleteOneCategory

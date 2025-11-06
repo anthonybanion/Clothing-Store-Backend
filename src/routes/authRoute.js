@@ -6,6 +6,7 @@ import {
   changePassword,
   validateToken,
   refreshToken,
+  logout,
 } from '../controllers/authController.js';
 import {
   loginValidation,
@@ -27,8 +28,8 @@ router.post('/login', loginValidation, handleValidationErrors, login);
 // GET /api/auth/profile (protegida)
 router.get('/profile', authenticateToken, getProfile);
 
-// POST /api/auth/change-password (protegida)
-router.post(
+// PATCH /api/auth/change-password (protegida)
+router.patch(
   '/change-password',
   authenticateToken,
   changePasswordValidation,
@@ -52,5 +53,8 @@ router.post(
   handleValidationErrors,
   refreshToken
 );
+
+// POST /api/auth/logout
+router.post('/logout', authenticateToken, logout);
 
 export default router;

@@ -10,6 +10,8 @@ export const dbConfig = {
     socketTimeoutMS: 45000, // Maximum time per operation (default: 360000)
     connectTimeoutMS: 10000, // Maximum time to connect to server (default: 30000)
     bufferCommands: false, // Do not buffer commands if there is no connection (default: true)
+    useNewUrlParser: true, // Use the new URL parser (default: false)
+    useUnifiedTopology: true, // Use the new Server Discover and Monitoring engine (default: false)
   },
 };
 

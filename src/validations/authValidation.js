@@ -33,7 +33,11 @@ export const changePasswordValidation = [
 ];
 
 export const refreshTokenValidation = [
-  body('refreshToken').notEmpty().withMessage('Refresh token is required'),
+  body('refreshToken')
+    .notEmpty()
+    .withMessage('Refresh token is required')
+    .isJWT()
+    .withMessage('Invalid refresh token format'),
 ];
 
 export const validateTokenValidation = [

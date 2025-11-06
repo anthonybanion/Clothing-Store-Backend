@@ -13,7 +13,7 @@ export { corsMiddleware, corsErrorHandler } from './cors.js';
 // Database configuration and connection
 export { dbConfig, connectDatabase } from './database.js';
 // Authentication configuration
-export { authConfig } from './auth.js';
+export { authConfig } from './authConfig.js';
 // Server configuration
 export { getServerConfig } from './serverConfig.js';
 // Environment variable validation and configuration
