@@ -1,33 +1,17 @@
 // ==========================================
-//
-// Description: Order business logic service
-//
+// Description: Order application logic service
 // File: orderService.js
-// Author: [Tu Nombre]
-// Created: 2025-11-05
 // ==========================================
 
 import Order from '../models/orderModel.js';
-import {
-  NotFoundError,
-  InsufficientResourceError,
-  ValidationError,
-  BusinessRuleError,
-} from '../errors/businessError.js';
-import {
-  validateUniqueness,
-  validateRequiredFields,
-} from '../utils/validationUtils.js';
+import { NotFoundError, ValidationError } from '../errors/businessError.js';
+import { validateEntityExists } from '../utils/validationUtils.js';
 
-class OrderService {
+export class OrderService {
   /**
-   * Get one order by ID
-   * param {string} id - Order ID
-   * param {string} accountId - Optional account ID for ownership validation
-   * returns {Promise<Object>} Order document
-   * throws {NotFoundError} If order not found
+   * Get order by ID with optional ownership validation
    */
-  async getOne(id, accountId = null) {
+  static async getOne(id, accountId = null) {
     const order = await Order.findById(id)
       .populate('account', 'username email')
       .exec();
@@ -38,158 +22,190 @@ class OrderService {
 
     // Validate ownership if accountId is provided
     if (accountId && order.account._id.toString() !== accountId) {
-      throw new NotFoundError('Order', id); // Don't reveal existence to unauthorized users
+      throw new NotFoundError('Order', id);
     }
 
     return order;
   }
 
   /**
-   * Get all orders
-   * param {string} accountId - Optional account ID to filter by owner
-   * returns {Promise<Array>} List of orders
+   * Get all orders with optional account filtering
    */
-  async getAll(accountId = null) {
+  static async getAll(accountId = null, options = {}) {
     const filter = accountId ? { account: accountId } : {};
-    return await Order.find(filter)
+
+    // Add additional filters if provided
+    if (options.status) filter.status = options.status;
+    if (options.dateFrom) filter.createdAt = { $gte: options.dateFrom };
+    if (options.dateTo) {
+      filter.createdAt = { ...filter.createdAt, $lte: options.dateTo };
+    }
+
+    const query = Order.find(filter)
       .populate('account', 'username email')
-      .sort({ date: -1 })
-      .exec();
+      .sort({ createdAt: -1 });
+
+    // Add pagination if provided
+    if (options.page && options.limit) {
+      const skip = (options.page - 1) * options.limit;
+      query.skip(skip).limit(options.limit);
+    }
+
+    return await query.exec();
   }
 
   /**
    * Get orders by account ID
-   * param {string} accountId - Account ID
-   * returns {Promise<Array>} List of orders for the account
    */
-  async getByAccount(accountId) {
-    return await Order.find({ account: accountId })
-      .populate('account', 'username email')
-      .sort({ date: -1 })
-      .exec();
+  static async getByAccount(accountId, options = {}) {
+    return this.getAll(accountId, options);
   }
 
   /**
    * Create a new order
-   * param {Object} data - Order data
-   * returns {Promise<Object>} Created order
-   * throws {ValidationError} If required fields are missing or invalid
    */
-  async create(data) {
+  static async create(orderData) {
+    // Auto-generate order number if not provided
+    if (!orderData.order_number) {
+      orderData.order_number = await this.generateOrderNumber();
+    }
+
     // Validate required fields
-    validateRequiredFields(data, ['order_number', 'account'], 'Order');
+    this.validateOrderData(orderData);
 
-    // Validate order number uniqueness
-    await validateUniqueness(Order, 'order_number', data.order_number, 'Order');
-
-    // Create and save the new order
-    const newOrder = new Order(data);
-    return await newOrder.save();
+    const order = new Order(orderData);
+    return await order.save();
   }
 
   /**
    * Update an order completely
-   * param {string} id - Order ID
-   * param {Object} data - Order data
-   * param {string} accountId - Optional account ID for ownership validation
-   * returns {Promise<Object>} Updated order
-   * throws {NotFoundError} If order not found
-   * throws {ValidationError} If data is invalid
    */
-  async update(id, data, accountId = null) {
-    const order = await this.getOne(id, accountId);
+  static async update(id, updateData, accountId = null) {
+    await this.validateOrderExistsAndOwned(id, accountId);
 
-    // Update fields
-    Object.keys(data).forEach((key) => {
-      if (data[key] !== undefined) {
-        order[key] = data[key];
-      }
-    });
+    this.validateOrderData(updateData, true);
 
-    return await order.save();
-  }
+    const order = await Order.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    }).populate('account', 'username email');
 
-  /**
-   * Update an order partially
-   * param {string} id - Order ID
-   * param {Object} data - Partial order data
-   * param {string} accountId - Optional account ID for ownership validation
-   * returns {Promise<Object>} Updated order
-   * throws {NotFoundError} If order not found
-   */
-  async updatePartial(id, data, accountId = null) {
-    const order = await this.getOne(id, accountId);
-
-    // Only update provided fields
-    Object.keys(data).forEach((key) => {
-      if (data[key] !== undefined) {
-        order[key] = data[key];
-      }
-    });
-
-    return await order.save();
-  }
-
-  /**
-   * Update order status
-   * param {string} id - Order ID
-   * param {string} status - New status
-   * param {string} accountId - Optional account ID for ownership validation
-   * returns {Promise<Object>} Updated order
-   * throws {NotFoundError} If order not found
-   * throws {ValidationError} If status is invalid
-   */
-  async updateStatus(id, status, accountId = null) {
-    const validStatuses = [
-      'pending',
-      'paid',
-      'shipped',
-      'cancelled',
-      'delivered',
-    ];
-
-    if (!validStatuses.includes(status)) {
-      throw new ValidationError(
-        `Invalid status. Must be one of: ${validStatuses.join(', ')}`
-      );
-    }
-
-    return await this.updatePartial(id, { status }, accountId);
-  }
-
-  /**
-   * Delete an order
-   * param {string} id - Order ID
-   * param {string} accountId - Optional account ID for ownership validation
-   * returns {Promise<Object>} Deleted order
-   * throws {NotFoundError} If order not found
-   */
-  async delete(id, accountId = null) {
-    const order = await this.getOne(id, accountId);
-    await Order.findByIdAndDelete(id);
     return order;
   }
 
   /**
-   * Generate a unique order number
-   * returns {string} Unique order number
+   * Update an order partially
    */
-  async generateOrderNumber() {
-    const timestamp = Date.now().toString(36);
-    const random = Math.random().toString(36).substr(2, 5);
-    return `ORD-${timestamp}-${random}`.toUpperCase();
+  static async updatePartial(id, updateData, accountId = null) {
+    await this.validateOrderExistsAndOwned(id, accountId);
+
+    const order = await Order.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    }).populate('account', 'username email');
+
+    return order;
   }
 
   /**
-   * Validate order ownership
-   * param {string} orderId - Order ID
-   * param {string} accountId - Account ID
-   * returns {Promise<boolean>} True if account owns the order
+   * Update order status
    */
-  async validateOwnership(orderId, accountId) {
-    const order = await Order.findById(orderId);
-    return order && order.account.toString() === accountId;
+  static async updateStatus(id, status) {
+    const allowedStatuses = [
+      'pending',
+      'confirmed',
+      'shipped',
+      'delivered',
+      'cancelled',
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      throw new ValidationError(
+        'Order',
+        `Status must be one of: ${allowedStatuses.join(', ')}`
+      );
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    ).populate('account', 'username email');
+
+    if (!order) {
+      throw new NotFoundError('Order', id);
+    }
+
+    return order;
+  }
+
+  /**
+   * Delete an order
+   */
+  static async delete(id, accountId = null) {
+    await this.validateOrderExistsAndOwned(id, accountId);
+
+    const order = await Order.findByIdAndDelete(id);
+    return order;
+  }
+
+  /**
+   * Generate unique order number
+   */
+  static async generateOrderNumber() {
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.random().toString(36).substring(2, 5).toUpperCase();
+    return `ORD-${timestamp}-${random}`;
+  }
+
+  // ============ PRIVATE METHODS ============
+
+  /**
+   * Validate order exists and is owned by account (if provided)
+   */
+  static async validateOrderExistsAndOwned(id, accountId = null) {
+    const order = await Order.findById(id);
+
+    if (!order) {
+      throw new NotFoundError('Order', id);
+    }
+
+    if (accountId && order.account.toString() !== accountId) {
+      throw new NotFoundError('Order', id);
+    }
+
+    return order;
+  }
+
+  /**
+   * Validate order data
+   */
+  static validateOrderData(orderData, isUpdate = false) {
+    const requiredFields = ['account', 'items', 'total_amount'];
+
+    if (!isUpdate) {
+      const missingFields = requiredFields.filter((field) => !orderData[field]);
+      if (missingFields.length > 0) {
+        throw new ValidationError(
+          'Order',
+          `Missing required fields: ${missingFields.join(', ')}`
+        );
+      }
+    }
+
+    // Validate items array
+    if (
+      orderData.items &&
+      (!Array.isArray(orderData.items) || orderData.items.length === 0)
+    ) {
+      throw new ValidationError('Order', 'Items must be a non-empty array');
+    }
+
+    // Validate total amount
+    if (orderData.total_amount && orderData.total_amount < 0) {
+      throw new ValidationError('Order', 'Total amount must be positive');
+    }
   }
 }
 
-export default new OrderService();
+export default OrderService;
