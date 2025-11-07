@@ -38,9 +38,8 @@ import {
 } from '../middlewares/authMiddleware.js';
 
 const router = Router();
-///////////////////////////////////////////////
+
 // 🔓 PUBLIC ROUTES (no authentication)
-///////////////////////////////////////////////
 // GET one category by ID - ID validation only
 router.get(
   '/:id',
@@ -51,9 +50,7 @@ router.get(
 // GET all categories - NO validation needed (read-only)
 router.get('/', getAllCategories);
 
-///////////////////////////////////////////////
 // 🔐 PROTECTED ROUTES (require authentication)
-///////////////////////////////////////////////
 // POST a new category - Full validation required
 router.post(
   '/',

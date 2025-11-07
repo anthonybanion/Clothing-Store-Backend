@@ -28,9 +28,7 @@ import {
 
 const router = Router();
 
-///////////////////////////////////////////////
 // 🔐 PROTECTED ROUTES
-///////////////////////////////////////////////
 router.get('/', authenticateToken, requireRole(['admin']), getAllPersons);
 
 router.get(

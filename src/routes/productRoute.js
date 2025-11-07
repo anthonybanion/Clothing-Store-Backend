@@ -41,10 +41,7 @@ import {
 } from '../middlewares/authMiddleware.js';
 
 const router = Router();
-///////////////////////////////////////////////
 // 🔓 PUBLIC ROUTES (no authentication)
-///////////////////////////////////////////////
-
 // GET all products - NO validation needed (read-only)
 router.get('/', getAllProducts);
 
@@ -54,9 +51,7 @@ router.get('/category/:categoryId', getProductsByCategory);
 // GET one product by ID - ID validation only
 router.get('/:id', productIdValidation, handleValidationErrors, getOneProduct);
 
-///////////////////////////////////////////////
 // 🔐 PROTECTED ROUTES (require authentication)
-///////////////////////////////////////////////
 // POST a new product - Full validation required
 router.post(
   '/',
