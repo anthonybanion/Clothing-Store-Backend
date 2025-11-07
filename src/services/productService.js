@@ -79,13 +79,15 @@ class ProductService {
     await validateUniqueness(Product, 'sku', data.sku, null, 'Product');
 
     // If there is an image, save it and get URL
-    if (data.image !== undefined) {
+    if (data.image && Buffer.isBuffer(data.image)) {
       const imageUrls = await saveImageAndGetUrl(
         data.image,
         'products',
         'product'
       );
       data.image = imageUrls; // Replace buffer with URL
+    } else {
+      data.image = null;
     }
 
     const product = new Product(data);

@@ -59,13 +59,15 @@ class CategoryService {
     await validateUniqueness(Category, 'name', data.name, null, 'Category');
 
     // If there is an image, save it and get URL
-    if (data.image !== undefined) {
+    if (data.image && Buffer.isBuffer(data.image)) {
       const imageUrls = await saveImageAndGetUrl(
         data.image,
         'categories',
         'category'
       );
       data.image = imageUrls; // Replace buffer with URL
+    } else {
+      data.image = null;
     }
 
     // Create and save category
