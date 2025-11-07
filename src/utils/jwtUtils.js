@@ -21,16 +21,37 @@ class JWTUtils {
    *
    * param {object} payload - Payload to sign
    * returns {string} - Signed JWT token
+   * throws {Error} - If token generation fails
    */
-  static generateToken(payload) {
+  static generateToken(payload, expiresIn = null) {
     // Get JWT config
-    const { secret, expiresIn, issuer } = authConfig.jwt;
+    const { secret, issuer, expiresIn: defaultExpiresIn } = authConfig.jwt;
     // Sign and return token
     return jwt.sign(payload, secret, {
-      expiresIn,
+      expiresIn: expiresIn || defaultExpiresIn, // Use custom or default expiration
       issuer,
       subject: payload.id?.toString(),
     });
+  }
+
+  /**
+   * Generate access token (short-lived)
+   * param {object} payload - Payload to sign
+   * returns {string} - Signed JWT access token
+   */
+  static generateAccessToken(payload) {
+    const { expiresIn } = authConfig.jwt;
+    return this.generateToken(payload, expiresIn); // '15m' desde .env
+  }
+
+  /**
+   * Generate refresh token (long-lived)
+   * param {object} payload - Payload to sign
+   * returns {string} - Signed JWT refresh token
+   */
+  static generateRefreshToken(payload) {
+    const { refreshTokenExpiresIn } = authConfig.jwt;
+    return this.generateToken(payload, refreshTokenExpiresIn); // '7d' desde .env
   }
 
   /**
@@ -71,6 +92,7 @@ class JWTUtils {
    *
    * param {string} token - JWT token
    * returns {object} - Decoded token payload
+   * throws {InvalidTokenError} - If token cannot be decoded
    */
   static decodeToken(token) {
     try {

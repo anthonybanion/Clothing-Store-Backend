@@ -116,19 +116,48 @@ export const updateAccount = async (req, res, next) => {
 };
 
 /**
- * Partially update account
+ * Update account username
  * param {Object} req - Express request object
  * param {Object} res - Express response object
  * param {Function} next - Express next middleware function
  */
-export const updatePartialAccount = async (req, res, next) => {
+export const updateAccountUsername = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
-    const account = await accountService.updatePartial(id, updates);
+    const { username } = req.body;
+
+    const account = await accountService.updateUsername(id, username);
 
     res.status(CODE.SUCCESS).json({
-      message: 'Account partially updated successfully',
+      message: 'Username updated successfully',
+      data: {
+        id: account._id,
+        username: account.username,
+        role: account.role,
+        is_active: account.is_active,
+        person: account.person,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Update account role (admin only)
+ * param {Object} req - Express request object
+ * param {Object} res - Express response object
+ * param {Function} next - Express next middleware function
+ */
+export const updateAccountRole = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const account = await accountService.updateRole(id, role);
+
+    res.status(CODE.SUCCESS).json({
+      message: 'Role updated successfully',
       data: {
         id: account._id,
         username: account.username,

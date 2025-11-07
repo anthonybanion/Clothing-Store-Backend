@@ -48,8 +48,8 @@ Express-validator does:
 
 Mongoose does (your current model):
 
-- ✅ Complex validations (custom regex)-
-- ✅ Uniqueness (unique fields)-
-- ✅ Specific lengths (minlength, maxlength)-
-- ✅ Detailed error messages-
+- ✅ Complex validations (custom regex)
+- ✅ Uniqueness (unique fields)
+- ✅ Specific lengths (minlength, maxlength)
+- ✅ Detailed error messages
 - ✅ Custom validations (HTTPS requirement, etc.)

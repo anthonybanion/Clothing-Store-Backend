@@ -49,13 +49,15 @@ class PersonService {
     await validateUniqueness(Person, 'email', data.email, null, 'Person');
 
     // If there is an image, save it and get URL
-    if (data.image !== undefined) {
+    if (data.image && Buffer.isBuffer(data.image)) {
       const imageUrls = await saveImageAndGetUrl(
         data.image,
         'persons',
         'person'
       );
       data.image = imageUrls; // Replace buffer with URL
+    } else {
+      data.image = null;
     }
 
     // Create and save person

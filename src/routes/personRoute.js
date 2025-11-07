@@ -20,11 +20,26 @@ import {
 import { handleValidationErrors } from '../middlewares/validationMiddleware.js';
 // Middleware for image upload
 import { uploadImage } from '../middlewares/uploadMiddleware.js';
+import {
+  authenticateToken,
+  requireRole,
+  requireOwnershipOrRole,
+} from '../middlewares/authMiddleware.js';
 
 const router = Router();
 
-router.get('/:id', personIdValidation, handleValidationErrors, getOnePerson);
-router.get('/', getAllPersons);
+// 🔐 PROTECTED ROUTES
+router.get('/', authenticateToken, requireRole(['admin']), getAllPersons);
+
+router.get(
+  '/:id',
+  authenticateToken,
+  requireOwnershipOrRole(['admin']),
+  personIdValidation,
+  handleValidationErrors,
+  getOnePerson
+);
+
 router.post(
   '/',
   uploadImage,
@@ -34,6 +49,8 @@ router.post(
 );
 router.put(
   '/:id',
+  authenticateToken,
+  requireOwnershipOrRole(['admin']),
   uploadImage,
   updatePersonValidation,
   handleValidationErrors,
@@ -41,6 +58,8 @@ router.put(
 );
 router.patch(
   '/:id',
+  authenticateToken,
+  requireOwnershipOrRole(['admin']),
   uploadImage,
   updatePartialPersonValidation,
   handleValidationErrors,
@@ -48,6 +67,8 @@ router.patch(
 );
 router.patch(
   '/:id/status',
+  authenticateToken,
+  requireRole(['admin']),
   updatePersonStatusValidation,
   handleValidationErrors,
   updatePersonStatus
@@ -55,6 +76,8 @@ router.patch(
 
 router.delete(
   '/:id/image',
+  authenticateToken,
+  requireOwnershipOrRole(['admin']),
   personIdValidation,
   handleValidationErrors,
   deletePersonImage
@@ -62,6 +85,8 @@ router.delete(
 
 router.delete(
   '/:id',
+  authenticateToken,
+  requireRole(['admin']),
   personIdValidation,
   handleValidationErrors,
   deleteOnePerson

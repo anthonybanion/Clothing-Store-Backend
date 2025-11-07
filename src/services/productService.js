@@ -46,10 +46,21 @@ class ProductService {
    *
    * returns {Promise<Array>} List of products
    */
-  async getAll() {
-    return await Product.find({ is_active: true }).exec();
-  }
+  async getAll(page, limit, offset) {
+    const products = await Product.find({ is_active: true })
+      .skip(offset)
+      .limit(limit)
+      .exec();
+    const amount = await Product.countDocuments();
 
+    const result = {
+      products: products,
+      totalItems: amount,
+      totalPage: Math.ceil(amount / limit),
+      currentPage: page,
+    };
+    return result;
+  }
   /**
    * Create a new product
    *

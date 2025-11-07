@@ -134,3 +134,28 @@ export const resetPasswordValidation = [
     .isLength({ max: 255 })
     .withMessage('New password cannot exceed 255 characters'),
 ];
+
+export const updateUsernameValidation = [
+  param('id').isMongoId().withMessage('Invalid account ID'),
+  body('username')
+    .notEmpty()
+    .withMessage('Username is required')
+    .isLength({ min: 2, max: 30 })
+    .withMessage('Username must be 2-30 characters')
+    .matches(USERNAME_REGEX)
+    .withMessage(
+      'Username may only contain letters, numbers, dots, and underscores'
+    )
+    .trim()
+    .toLowerCase(),
+];
+
+// updateRoleValidation
+export const updateRoleValidation = [
+  param('id').isMongoId().withMessage('Invalid account ID'),
+  body('role')
+    .notEmpty()
+    .withMessage('Role is required')
+    .isIn(['client', 'admin'])
+    .withMessage('Role must be either "client" or "admin"'),
+];

@@ -5,8 +5,8 @@
 // File: productRouter.js
 // Author: Anthony Bañon
 // Created: 2025-10-14
-// Last Updated: 2025-11-02
-// Changes: Added middleware for image upload
+// Last Updated: 2025-11-05
+// Changes: Added JWT authentication and role-based access control
 // ==========================================
 
 import { Router } from 'express';
@@ -32,13 +32,16 @@ import {
   productIdValidation,
   updateProductStatusValidation,
 } from '../validations/productValidation.js';
-// Middleware to handle validation errors
+// Middlewares
 import { handleValidationErrors } from '../middlewares/validationMiddleware.js';
-// Middleware for image upload
 import { uploadImage } from '../middlewares/uploadMiddleware.js';
+import {
+  authenticateToken,
+  requireRole,
+} from '../middlewares/authMiddleware.js';
 
 const router = Router();
-
+// 🔓 PUBLIC ROUTES (no authentication)
 // GET all products - NO validation needed (read-only)
 router.get('/', getAllProducts);
 
@@ -48,9 +51,12 @@ router.get('/category/:categoryId', getProductsByCategory);
 // GET one product by ID - ID validation only
 router.get('/:id', productIdValidation, handleValidationErrors, getOneProduct);
 
+// 🔐 PROTECTED ROUTES (require authentication)
 // POST a new product - Full validation required
 router.post(
   '/',
+  authenticateToken,
+  requireRole(['admin']),
   uploadImage,
   createProductValidation,
   handleValidationErrors,
@@ -60,6 +66,8 @@ router.post(
 // PUT update a product completely - Full validation
 router.put(
   '/:id',
+  authenticateToken,
+  requireRole(['admin']),
   uploadImage,
   updateProductValidation,
   handleValidationErrors,
@@ -69,6 +77,8 @@ router.put(
 // PATCH update a product partially - Partial validation
 router.patch(
   '/:id',
+  authenticateToken,
+  requireRole(['admin']),
   uploadImage,
   updatePartialProductValidation,
   handleValidationErrors,
@@ -78,6 +88,8 @@ router.patch(
 // PATCH update product stock - Quantity validation only
 router.patch(
   '/:id/stock',
+  authenticateToken,
+  requireRole(['admin']),
   stockUpdateValidation,
   handleValidationErrors,
   updateProductStock
@@ -86,6 +98,8 @@ router.patch(
 // PATCH update product status (soft delete or restore)
 router.patch(
   '/:id/status',
+  authenticateToken,
+  requireRole(['admin']),
   updateProductStatusValidation,
   handleValidationErrors,
   updateProductStatus
@@ -93,6 +107,8 @@ router.patch(
 // DELETE product image - ID validation only
 router.delete(
   '/:id/image',
+  authenticateToken,
+  requireRole(['admin']),
   productIdValidation,
   handleValidationErrors,
   deleteProductImage
@@ -101,6 +117,8 @@ router.delete(
 // DELETE a product - ID validation only
 router.delete(
   '/:id',
+  authenticateToken,
+  requireRole(['admin']),
   productIdValidation,
   handleValidationErrors,
   deleteOneProduct

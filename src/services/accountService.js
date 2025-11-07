@@ -8,7 +8,7 @@
 // Last Updated: 2025-11-04
 // ==========================================
 
-import Account from '../models/Account.js';
+import Account from '../models/accountModel.js';
 import {
   NotFoundError,
   DuplicateError,
@@ -19,6 +19,7 @@ import {
   validateRequiredFields,
   validateAllowedValues,
   validateMinLength,
+  validateMaxLength,
   validateEmail,
 } from '../utils/validationUtils.js';
 import bcrypt from 'bcrypt';
@@ -49,8 +50,9 @@ class AccountService {
     await validateUniqueness(Account, 'username', data.username);
 
     // Hash password before saving
+    let hashedPassword;
     if (data.password) {
-      data.password = await bcrypt.hash(
+      hashedPassword = await bcrypt.hash(
         data.password,
         authConfig.bcrypt.saltRounds
       );
@@ -74,7 +76,9 @@ class AccountService {
    * @throws {DuplicateError} - If the username is already taken
    */
   async update(id, data) {
+    // Fetch existing account
     const account = await this.getOne(id);
+
     // If username is being updated, check uniqueness
     if (data.username && data.username !== account.username) {
       await validateUniqueness(Account, 'username', data.username, id);
@@ -95,7 +99,15 @@ class AccountService {
     return await account.save();
   }
 
-  // accountService.js
+  /* Update account username
+   *
+   * @param {string} id - The ID of the account
+   * @param {string} newUsername - The new username
+   * @returns {Promise<Account>} - The updated account
+   * @throws {NotFoundError} - If the account is not found
+   * @throws {DuplicateError} - If the username is already taken
+   * @throws {ValidationError} - If the new username is invalid
+   */
   async updateUsername(id, newUsername) {
     validateMinLength(newUsername, 3, 'username', 'Account');
     validateMaxLength(newUsername, 50, 'username', 'Account');
@@ -139,6 +151,11 @@ class AccountService {
     return updatedAccount;
   }
 
+  /* Validate that the account is not the last admin
+   *
+   *  param {string} accountId - The ID of the account to check
+   *  throws {ValidationError} - If the account is the last admin
+   */
   async validateNotLastAdmin(accountId) {
     const account = await Account.findById(accountId);
     if (account.role === 'admin') {
