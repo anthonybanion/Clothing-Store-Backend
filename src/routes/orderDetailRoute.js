@@ -28,7 +28,7 @@ import {
   orderDetailIdValidation,
   bulkOrderDetailValidation,
   orderDetailsByOrderValidation,
-} from '../validations/orderDetailValidator.js';
+} from '../validations/orderDetailValidation.js';
 import { handleValidationErrors } from '../middlewares/validationMiddleware.js';
 import {
   authenticateToken,

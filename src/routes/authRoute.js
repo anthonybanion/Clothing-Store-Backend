@@ -1,4 +1,13 @@
-// /routes/auth.js
+// ==========================================
+//
+// Description: Auth Route
+//
+// File: authRoute.js
+// Author: Anthony Bañon
+// Created: 2025-11-08
+// Last Updated: 2025-11-08
+// ==========================================
+
 import express from 'express';
 import {
   login,

@@ -3,7 +3,7 @@
 // File: orderDetailService.js
 // ==========================================
 
-import OrderDetail from '../models/orderDetail.model.js';
+import OrderDetail from '../models/orderDetailModel.js';
 import { NotFoundError, ValidationError } from '../errors/businessError.js';
 import { validateEntityExists } from '../utils/validationUtils.js';
 
