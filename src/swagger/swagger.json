@@ -1,0 +1,48 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Clothing Store API",
+    "version": "1.0.0",
+    "description": "API for clothing store management"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Local development server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request - Invalid input data"
+      },
+      "Unauthorized": {
+        "description": "Unauthorized - Invalid or missing token"
+      },
+      "Forbidden": {
+        "description": "Forbidden - Insufficient permissions"
+      },
+      "NotFound": {
+        "description": "Resource not found"
+      },
+      "ServerError": {
+        "description": "Internal server error"
+      },
+      "Conflict": {
+        "description": "Conflict - Resource already exists"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}

@@ -25,9 +25,11 @@ export const CODE = {
 };
 
 export const PAGINATION = {
-  DEFAULT_LIMIT: 10, // Default items per page
+  DEFAULT_LIMIT: 3, // Default items per page
   MAX_LIMIT: 100, // Maximum items per page
   DEFAULT_PAGE: 1, // Default page number
+  DEFAULT_SORT_BY: 'createdAt', // Default field to sort by
+  DEFAULT_SORT_ORDER: 'desc', // Default sort order
 };
 
 export const LIMIT = {

@@ -11,6 +11,9 @@ export class baseError extends Error {
     this.details = details;
     this.isOperational = true; // Marks this as an expected, handled error
 
-    Error.captureStackTrace(this, this.constructor);
+    // Capture stack trace only in development mode
+    if (process.env.NODE_ENV === 'development') {
+      Error.captureStackTrace(this, this.constructor);
+    }
   }
 }

@@ -44,15 +44,18 @@ export const getOneCategory = async (req, res, next) => {
  */
 export const getAllCategories = async (req, res, next) => {
   try {
-    // Fetch all categories from service
-    const categories = await categoryService.getAll();
-    // Successful response
+    // LÓGICA HTTP: Extrae query params
+    const filters = req.query;
+
+    // SERVICE maneja lógica de negocio
+    const categoriesData = await categoryService.getAll(filters);
+
+    // CONTROLLER maneja respuesta HTTP
     res.status(CODE.SUCCESS).json({
-      message: `Categories retrieved successfully`,
-      data: categories,
+      message: 'Categories retrieved successfully',
+      data: categoriesData, // categoriesData viene CRUDO del service
     });
   } catch (error) {
-    // Pass error to global error handler
     next(error);
   }
 };

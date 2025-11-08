@@ -60,11 +60,17 @@ export const handleProductError = (res, error) => {
 
   // 3. Handle unexpected errors
   console.error('Unexpected product error:', error);
-  return res.status(CODE.INTERNAL_ERROR).json({
-    message: 'Internal server error',
-    error:
-      process.env.NODE_ENV === 'development'
-        ? error.message
-        : 'Something went wrong',
-  });
+  const errorResponse = {
+    success: false,
+    error: {
+      message: 'Internal server error',
+      code: 'INTERNAL_ERROR',
+    },
+  };
+
+  if (process.env.NODE_ENV === 'development') {
+    errorResponse.error.details = error.message;
+  }
+
+  return res.status(CODE.INTERNAL_ERROR).json(errorResponse);
 };

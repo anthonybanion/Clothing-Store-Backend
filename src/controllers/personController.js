@@ -1,5 +1,5 @@
 // ==========================================
-// 
+//
 // Description: Person controller
 //
 // File: personController.js
@@ -7,7 +7,6 @@
 // Created: 2025-11-03
 // Last Updated: 2025-11-03
 // ==========================================
-
 
 import personService from '../services/personService.js';
 import { CODE } from '../config/constants.js';
@@ -30,18 +29,21 @@ export const getOnePerson = async (req, res, next) => {
 
 export const getAllPersons = async (req, res, next) => {
   try {
-    // Get all persons
-    const persons = await personService.getAll();
-    // Successful response
+    // LÓGICA HTTP: Extrae query params
+    const filters = req.query;
+
+    // SERVICE maneja lógica de negocio
+    const personsData = await personService.getAll(filters);
+
+    // CONTROLLER maneja respuesta HTTP
     res.status(CODE.SUCCESS).json({
       message: 'Persons retrieved successfully',
-      data: persons,
+      data: personsData, // personsData viene CRUDO del service
     });
   } catch (error) {
     next(error);
   }
 };
-
 export const createOnePerson = async (req, res, next) => {
   try {
     // Get new person data from body and file (image)

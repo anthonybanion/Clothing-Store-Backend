@@ -1,0 +1,549 @@
+{
+  "paths": {
+    "/api/persons": {
+      "get": {
+        "summary": "Get all persons",
+        "description": "Retrieve all persons (admin only)",
+        "tags": ["Persons"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Persons retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Person"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - Admin role required"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new person",
+        "description": "Create a new person (public endpoint for registration)",
+        "tags": ["Persons"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["first_name", "last_name", "email"],
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "example": "John",
+                    "description": "First name"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Doe",
+                    "description": "Last name"
+                  },
+                  "dni": {
+                    "type": "string",
+                    "example": "12345678A",
+                    "description": "National ID (optional, unique)"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john.doe@example.com",
+                    "description": "Unique email address"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Profile image file"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Person created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input data"
+          },
+          "409": {
+            "description": "Conflict - Email or DNI already exists"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/persons/{id}": {
+      "get": {
+        "summary": "Get person by ID",
+        "description": "Retrieve a specific person (users can access their own, admin can access any)",
+        "tags": ["Persons"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Person ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Person found successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid person ID"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Cannot access other users' persons"
+          },
+          "404": {
+            "description": "Person not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update entire person",
+        "description": "Replace all person fields (users can update their own, admin can update any)",
+        "tags": ["Persons"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Person ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["first_name", "last_name", "email"],
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "example": "Jonathan"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Smith"
+                  },
+                  "dni": {
+                    "type": "string",
+                    "example": "87654321B"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "jonathan.smith@example.com"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "New profile image"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Person updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Cannot update other users' persons"
+          },
+          "404": {
+            "description": "Person not found"
+          },
+          "409": {
+            "description": "Conflict - Email or DNI already exists"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Partially update person",
+        "description": "Update specific person fields (users can update their own, admin can update any)",
+        "tags": ["Persons"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Person ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "example": "Johnny"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Deep"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "johnny.deep@example.com"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Person partially updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Cannot update other users' persons"
+          },
+          "404": {
+            "description": "Person not found"
+          },
+          "409": {
+            "description": "Conflict - Email already exists"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete person",
+        "description": "Permanently delete a person (admin only)",
+        "tags": ["Persons"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Person ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Person deleted successfully"
+          },
+          "400": {
+            "description": "Bad request - Invalid person ID"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin role required"
+          },
+          "404": {
+            "description": "Person not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/persons/{id}/status": {
+      "patch": {
+        "summary": "Update person status",
+        "description": "Activate or deactivate a person (admin only)",
+        "tags": ["Persons"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Person ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["is_active"],
+                "properties": {
+                  "is_active": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Person status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin role required"
+          },
+          "404": {
+            "description": "Person not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/persons/{id}/image": {
+      "delete": {
+        "summary": "Delete person image",
+        "description": "Remove person profile image (users can delete their own, admin can delete any)",
+        "tags": ["Persons"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Person ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Person image deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid person ID"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Cannot delete other users' images"
+          },
+          "404": {
+            "description": "Person not found or no image to delete"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Person": {
+        "type": "object",
+        "required": ["first_name", "last_name", "email", "is_active"],
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Person unique identifier"
+          },
+          "first_name": {
+            "type": "string",
+            "description": "First name"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "Last name"
+          },
+          "dni": {
+            "type": "string",
+            "description": "National ID (optional)"
+          },
+          "image": {
+            "type": "object",
+            "properties": {
+              "desktop": {
+                "type": "string",
+                "description": "Desktop image URL"
+              },
+              "mobile": {
+                "type": "string",
+                "description": "Mobile image URL"
+              },
+              "thumbnail": {
+                "type": "string",
+                "description": "Thumbnail image URL"
+              }
+            }
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Unique email address"
+          },
+          "is_active": {
+            "type": "boolean",
+            "description": "Person active status"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "example": {
+          "_id": "507f1f77bcf86cd799439016",
+          "first_name": "John",
+          "last_name": "Doe",
+          "dni": "12345678A",
+          "email": "john.doe@example.com",
+          "is_active": true,
+          "createdAt": "2024-01-15T10:30:00.000Z",
+          "updatedAt": "2024-01-15T10:30:00.000Z"
+        }
+      }
+    }
+  }
+}
