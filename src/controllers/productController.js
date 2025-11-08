@@ -43,16 +43,18 @@ export const getOneProduct = async (req, res, next) => {
  * @returns {Promise<Array>} List of products
  * @throws {Error} If an error occurs during retrieval
  */
-
 export const getAllProducts = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
-    const offset = (page - 1) * limit;
-    const productsList = await productService.getAll(page, limit, offset);
+    // LÓGICA HTTP: Extrae query params
+    const filters = req.query;
 
+    // SERVICE maneja lógica de negocio
+    const productsData = await productService.getAll(filters);
+
+    // CONTROLLER maneja respuesta HTTP
     res.status(CODE.SUCCESS).json({
       message: 'Products retrieved successfully',
-      data: productsList,
+      data: productsData, // productsData viene CRUDO del service
     });
   } catch (error) {
     next(error);

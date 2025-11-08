@@ -21,6 +21,9 @@ import {
   processImageUpdate,
 } from '../utils/imageUtils.js';
 
+import { buildQuery } from '../utils/queryBuilder.js';
+import { buildPagination } from '../utils/pagination.js';
+
 class CategoryService {
   /**
    * Get one category by ID
@@ -40,10 +43,28 @@ class CategoryService {
    * Get all active categories
    * returns {Promise<Array>} List of categories
    */
-  async getAll() {
-    return await Category.find({ is_active: true }).exec();
-  }
+  async getAll(filters = {}) {
+    // LÓGICA DE NEGOCIO: Construye query específica de categorías
+    const defaultQuery = { is_active: true };
+    const query = buildQuery(filters, defaultQuery);
+    const { page, limit, offset, sort } = buildPagination(filters);
 
+    // LÓGICA DE NEGOCIO: Operaciones específicas de Category
+    const [categories, totalItems] = await Promise.all([
+      Category.find(query).sort(sort).skip(offset).limit(limit).exec(),
+      Category.countDocuments(query),
+    ]);
+
+    // Retorna DATOS CRUDOS (sin formato HTTP)
+    return {
+      categories,
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit),
+      currentPage: page,
+      hasNextPage: page < Math.ceil(totalItems / limit),
+      hasPrevPage: page > 1,
+    };
+  }
   /**
    * Create a new category
    * param {Object} data - Category data
@@ -59,13 +80,15 @@ class CategoryService {
     await validateUniqueness(Category, 'name', data.name, null, 'Category');
 
     // If there is an image, save it and get URL
-    if (data.image !== undefined) {
+    if (data.image && Buffer.isBuffer(data.image)) {
       const imageUrls = await saveImageAndGetUrl(
         data.image,
         'categories',
         'category'
       );
       data.image = imageUrls; // Replace buffer with URL
+    } else {
+      data.image = null;
     }
 
     // Create and save category

@@ -1,0 +1,656 @@
+{
+  "paths": {
+    "/api/accounts": {
+      "get": {
+        "summary": "Get all accounts",
+        "description": "Retrieve all accounts (admin only)",
+        "tags": ["Accounts"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accounts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Account"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - Admin role required"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new account",
+        "description": "Create a new user account (admin only)",
+        "tags": ["Accounts"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password", "person"],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "john_doe",
+                    "description": "Unique username (lowercase)"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "securePassword123",
+                    "description": "Account password"
+                  },
+                  "role": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["client", "admin"]
+                    },
+                    "example": ["client"],
+                    "description": "User roles"
+                  },
+                  "person": {
+                    "type": "string",
+                    "example": "507f1f77bcf86cd799439016",
+                    "description": "Person ID reference"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin role required"
+          },
+          "409": {
+            "description": "Conflict - Username or person already exists"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/accounts/{id}": {
+      "get": {
+        "summary": "Get account by ID",
+        "description": "Retrieve a specific account (users can access their own, admin can access any)",
+        "tags": ["Accounts"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account found successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid account ID"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Cannot access other users' accounts"
+          },
+          "404": {
+            "description": "Account not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update entire account",
+        "description": "Replace all account fields (users can update their own, admin can update any)",
+        "tags": ["Accounts"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "person"],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "updated_username"
+                  },
+                  "role": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["client", "admin"]
+                    },
+                    "example": ["admin"]
+                  },
+                  "person": {
+                    "type": "string",
+                    "example": "507f1f77bcf86cd799439016"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Cannot update other users' accounts"
+          },
+          "404": {
+            "description": "Account not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete account",
+        "description": "Permanently delete an account (admin only)",
+        "tags": ["Accounts"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account deleted successfully"
+          },
+          "400": {
+            "description": "Bad request - Invalid account ID"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin role required"
+          },
+          "404": {
+            "description": "Account not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/accounts/{id}/username": {
+      "put": {
+        "summary": "Update username",
+        "description": "Update account username (users can update their own)",
+        "tags": ["Accounts"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username"],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "new_username_2024"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Username updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid username"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Cannot update other users' accounts"
+          },
+          "404": {
+            "description": "Account not found"
+          },
+          "409": {
+            "description": "Conflict - Username already exists"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/accounts/{id}/role": {
+      "put": {
+        "summary": "Update account role",
+        "description": "Update user roles (admin only)",
+        "tags": ["Accounts"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["role"],
+                "properties": {
+                  "role": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["client", "admin"]
+                    },
+                    "example": ["admin", "client"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account role updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid role values"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin role required"
+          },
+          "404": {
+            "description": "Account not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/accounts/{id}/reset-password": {
+      "post": {
+        "summary": "Reset account password",
+        "description": "Reset user password (admin only)",
+        "tags": ["Accounts"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["newPassword"],
+                "properties": {
+                  "newPassword": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "newSecurePassword456",
+                    "description": "New password for the account"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully"
+          },
+          "400": {
+            "description": "Bad request - Invalid password"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin role required"
+          },
+          "404": {
+            "description": "Account not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/accounts/{id}/status": {
+      "patch": {
+        "summary": "Update account status",
+        "description": "Activate or deactivate an account (admin only)",
+        "tags": ["Accounts"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["is_active"],
+                "properties": {
+                  "is_active": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin role required"
+          },
+          "404": {
+            "description": "Account not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/accounts/{id}/force-logout": {
+      "post": {
+        "summary": "Force logout",
+        "description": "Invalidate user tokens and force logout (admin only)",
+        "tags": ["Accounts"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Account ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User logged out successfully"
+          },
+          "400": {
+            "description": "Bad request - Invalid account ID"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin role required"
+          },
+          "404": {
+            "description": "Account not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Account": {
+        "type": "object",
+        "required": ["username", "password", "role", "is_active", "person"],
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Account unique identifier"
+          },
+          "username": {
+            "type": "string",
+            "description": "Unique username"
+          },
+          "role": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["client", "admin"]
+            },
+            "description": "User roles"
+          },
+          "is_active": {
+            "type": "boolean",
+            "description": "Account active status"
+          },
+          "person": {
+            "type": "string",
+            "description": "Person ID reference"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Current refresh token"
+          },
+          "refreshTokenExpires": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Refresh token expiration date"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "example": {
+          "_id": "507f1f77bcf86cd799439015",
+          "username": "john_doe",
+          "role": ["client"],
+          "is_active": true,
+          "person": "507f1f77bcf86cd799439016",
+          "createdAt": "2024-01-15T10:30:00.000Z",
+          "updatedAt": "2024-01-15T10:30:00.000Z"
+        }
+      }
+    }
+  }
+}

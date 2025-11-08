@@ -25,6 +25,9 @@ import {
   processImageUpdate,
 } from '../utils/imageUtils.js';
 
+import { buildQuery } from '../utils/queryBuilder.js';
+import { buildPagination } from '../utils/pagination.js';
+
 class ProductService {
   /**
    * Get one product by ID
@@ -46,20 +49,27 @@ class ProductService {
    *
    * returns {Promise<Array>} List of products
    */
-  async getAll(page, limit, offset) {
-    const products = await Product.find({ is_active: true })
-      .skip(offset)
-      .limit(limit)
-      .exec();
-    const amount = await Product.countDocuments();
+  async getAll(filters = {}) {
+    // LÓGICA DE NEGOCIO: Construye query específica de productos
+    const defaultQuery = { is_active: true };
+    const query = buildQuery(filters, defaultQuery);
+    const { page, limit, offset, sort } = buildPagination(filters);
 
-    const result = {
-      products: products,
-      totalItems: amount,
-      totalPage: Math.ceil(amount / limit),
+    // LÓGICA DE NEGOCIO: Operaciones específicas de Product
+    const [products, totalItems] = await Promise.all([
+      Product.find(query).sort(sort).skip(offset).limit(limit).exec(),
+      Product.countDocuments(query),
+    ]);
+
+    // Retorna DATOS CRUDOS (sin formato HTTP)
+    return {
+      products,
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit),
       currentPage: page,
+      hasNextPage: page < Math.ceil(totalItems / limit),
+      hasPrevPage: page > 1,
     };
-    return result;
   }
   /**
    * Create a new product
@@ -79,13 +89,15 @@ class ProductService {
     await validateUniqueness(Product, 'sku', data.sku, null, 'Product');
 
     // If there is an image, save it and get URL
-    if (data.image !== undefined) {
+    if (data.image && Buffer.isBuffer(data.image)) {
       const imageUrls = await saveImageAndGetUrl(
         data.image,
         'products',
         'product'
       );
       data.image = imageUrls; // Replace buffer with URL
+    } else {
+      data.image = null;
     }
 
     const product = new Product(data);

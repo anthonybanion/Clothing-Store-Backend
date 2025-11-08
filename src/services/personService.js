@@ -1,3 +1,13 @@
+// ==========================================
+//
+// Description: Person Service
+//
+// File: personService.js
+// Author: Anthony Bañon
+// Created: 2025-11-07
+// Last Updated: 2025-11-07
+// ==========================================
+
 import Person from '../models/personModel.js';
 import { NotFoundError } from '../errors/businessError.js';
 import {
@@ -9,6 +19,9 @@ import {
   deleteImageFiles,
   processImageUpdate,
 } from '../utils/imageUtils.js';
+
+import { buildQuery } from '../utils/queryBuilder.js';
+import { buildPagination } from '../utils/pagination.js';
 
 class PersonService {
   /**
@@ -29,8 +42,27 @@ class PersonService {
    * Get all active persons
    * returns {Promise<Array>} List of active persons
    */
-  async getAll() {
-    return await Person.find({ is_active: true }).exec();
+  async getAll(filters = {}) {
+    // LÓGICA DE NEGOCIO: Construye query específica de persons
+    const defaultQuery = { is_active: true };
+    const query = buildQuery(filters, defaultQuery);
+    const { page, limit, offset, sort } = buildPagination(filters);
+
+    // LÓGICA DE NEGOCIO: Operaciones específicas de Person
+    const [persons, totalItems] = await Promise.all([
+      Person.find(query).sort(sort).skip(offset).limit(limit).exec(),
+      Person.countDocuments(query),
+    ]);
+
+    // Retorna DATOS CRUDOS (sin formato HTTP)
+    return {
+      persons,
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit),
+      currentPage: page,
+      hasNextPage: page < Math.ceil(totalItems / limit),
+      hasPrevPage: page > 1,
+    };
   }
 
   /**
