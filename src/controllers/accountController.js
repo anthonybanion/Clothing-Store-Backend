@@ -68,7 +68,7 @@ export const getAllAccounts = async (req, res, next) => {
  * param {Object} res - Express response object
  * param {Function} next - Express next middleware function
  */
-export const createAccount = async (req, res, next) => {
+export const createOneAccount = async (req, res, next) => {
   try {
     const accountData = req.body;
     const account = await accountService.create(accountData);
