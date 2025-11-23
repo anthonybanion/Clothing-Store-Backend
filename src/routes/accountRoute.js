@@ -55,6 +55,14 @@ router.get(
   getOneAccount
 );
 
+// POST register new account (Public)
+router.post(
+  '/register',
+  createAccountValidation,
+  handleValidationErrors,
+  createOneAccount
+);
+
 // POST create new account (Admin only)
 router.post(
   '/',
