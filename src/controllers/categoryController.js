@@ -44,16 +44,16 @@ export const getOneCategory = async (req, res, next) => {
  */
 export const getAllCategories = async (req, res, next) => {
   try {
-    // LÓGICA HTTP: Extrae query params
+    // HTTP LOGIC: Extract query params
     const filters = req.query;
 
-    // SERVICE maneja lógica de negocio
+    // SERVICE handles business logic
     const categoriesData = await categoryService.getAll(filters);
 
-    // CONTROLLER maneja respuesta HTTP
+    // CONTROLLER handles HTTP response
     res.status(CODE.SUCCESS).json({
       message: 'Categories retrieved successfully',
-      data: categoriesData, // categoriesData viene CRUDO del service
+      data: categoriesData, // categoriesData comes RAW from the service
     });
   } catch (error) {
     next(error);

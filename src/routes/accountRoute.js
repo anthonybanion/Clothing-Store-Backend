@@ -12,7 +12,7 @@ import express from 'express';
 import {
   getOneAccount,
   getAllAccounts,
-  createAccount,
+  createOneAccount,
   updateAccount,
   updateAccountUsername,
   updateAccountRole,
@@ -55,6 +55,14 @@ router.get(
   getOneAccount
 );
 
+// POST register new account (Public)
+router.post(
+  '/register',
+  createAccountValidation,
+  handleValidationErrors,
+  createOneAccount
+);
+
 // POST create new account (Admin only)
 router.post(
   '/',
@@ -62,7 +70,7 @@ router.post(
   requireRole(['admin']),
   createAccountValidation,
   handleValidationErrors,
-  createAccount
+  createOneAccount
 );
 
 // PUT update account (User can update their own, Admin can update any)
