@@ -41,7 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Static files serving
-app.use('/static', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // All API routes
 app.use('/api', apiRouter);
