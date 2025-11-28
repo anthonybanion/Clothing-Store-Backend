@@ -52,7 +52,16 @@ app.use(express.urlencoded({ extended: true }));
 
 // Swagger Documentation
 app.use('/api/docs', swaggerUi.serve);
-app.get('/api/docs', swaggerUi.setup(swaggerSpec));
+app.get(
+  '/api/docs',
+  swaggerUi.setup(swaggerSpec, {
+    customCssUrl: 'https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css',
+    customJs: [
+      'https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js',
+      'https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js',
+    ],
+  })
+);
 
 // Static files serving
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
