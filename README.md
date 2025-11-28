@@ -51,8 +51,6 @@ A robust and scalable RESTful API backend for an e-commerce clothing store, buil
 
 Full interactive API documentation with Swagger UI:
 
-**Production:** https://clothing-store-backend-flax.vercel.app/api/docs/
-
 **Local Development:** http://localhost:5000/api/docs/
 
 The Swagger documentation includes:
