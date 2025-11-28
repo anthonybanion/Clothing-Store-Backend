@@ -14,6 +14,7 @@ A robust and scalable RESTful API backend for an e-commerce clothing store, buil
 - Features
 - Technologies
 - API Documentation
+- Database Documentation
 - Installation & Setup
 - Admin Access
 - Project Structure
@@ -62,6 +63,22 @@ The Swagger documentation includes:
 - Authentication requirements
 - Interactive testing interface
 - Error code documentation
+
+## 📊 Database Documentation
+
+For complete database documentation including schemas, relationships, and validations, check the:
+
+[Data Dictionary](docs/dictionary/README.md)
+
+The dictionary includes:
+
+    Complete table structure and relationships
+
+    Data validations and constraints
+
+    Database schemas
+
+    Implemented business rules
 
 ## 🚀 Installation & Setup
 
@@ -236,4 +253,4 @@ The application is deployed on Vercel and automatically updates from the main br
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.

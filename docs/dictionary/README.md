@@ -1,4 +1,4 @@
-# 📊 Data Dictionary - E-commerce System
+# 📊 Data Dictionary - E-commerce System [🔙](../../README.md)
 
 ## 🚀 Introduction
 
@@ -132,3 +132,5 @@ The database schema is now fully documented and ready for development phase impl
 ---
 
 _✨ Building the future of e-commerce, one table at a time! ✨_
+
+[🔙 Back](../../README.md)
