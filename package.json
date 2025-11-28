@@ -2,12 +2,12 @@
   "name": "clothing-store-backend",
   "version": "1.0.0",
   "description": "Backend for Clothing Store Ecommerce using Node.js, Express, and MongoDB. ",
-  "main": "src/server.js",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
     "test": "jest",
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
   },
   "repository": {
     "type": "git",
