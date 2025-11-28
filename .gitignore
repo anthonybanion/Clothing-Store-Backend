@@ -59,5 +59,3 @@ yarn-error.log
 *.tgz
 
 # Uploads
-uploads/*
-!uploads/.gitkeep
