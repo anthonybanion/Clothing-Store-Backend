@@ -9,7 +9,7 @@ export const dbConfig = {
     serverSelectionTimeoutMS: 5000, // Time to find server (default: 30000)
     socketTimeoutMS: 45000, // Maximum time per operation (default: 360000)
     connectTimeoutMS: 10000, // Maximum time to connect to server (default: 30000)
-    bufferCommands: false, // Do not buffer commands if there is no connection (default: true)
+    bufferCommands: true, // Do not buffer commands if there is no connection (default: true)
   },
 };
 
