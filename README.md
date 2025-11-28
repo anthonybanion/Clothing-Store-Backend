@@ -10,17 +10,17 @@ A robust and scalable RESTful API backend for an e-commerce clothing store, buil
 
 ## 📋 Table of Contents
 
--Live Demo
--Features
--Technologies
--API Documentation
--Installation & Setup
--Admin Access
--Project Structure
--Environment Variables
--Development
--Deployment
--License
+- Live Demo
+- Features
+- Technologies
+- API Documentation
+- Installation & Setup
+- Admin Access
+- Project Structure
+- Environment Variables
+- Development
+- Deployment
+- License
 
 ## 🌐 Live Demo
 
